@@ -2,7 +2,7 @@ import time
 import RPi.GPIO as GPIO
 from Tkinter import *
 
-inputPin = 21
+inputPin = 37
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
@@ -67,14 +67,14 @@ while 1:
                 food = food + 1
                 
         
-    if(start + 1.5 > time.time()):
-        print str(start + 1.5) + " Time: " + str(time.time()) + " Feed"
-        pwm.start(11.75 -(1.25*food))
-    elif(start + 3 > time.time()):
-        print str(start + 3) + " Time: " + str(time.time()) + " Close" 
-        pwm.start(11.75)
-    else:
-        pwm.stop()    
+##    if(start + 1.5 > time.time()):
+##        print str(start + 1.5) + " Time: " + str(time.time()) + " Feed"
+##        pwm.start(11.75 -(1.25*food))
+##    elif(start + 3 > time.time()):
+##        print str(start + 3) + " Time: " + str(time.time()) + " Close" 
+##        pwm.start(11.75)
+##    else:
+##        pwm.stop()    
 
 pwm.stop()
 GPIO.cleanup()

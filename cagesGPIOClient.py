@@ -27,7 +27,7 @@ passes = [0,0,0,0,0,0,0,0]
 currentRevs = [1,1,1,1,1,1,1,1]
 dispenseRevs = [10,10,10,10,10,10,10,10]
 food = [11.75,10.85,9.6,8.4,7.5,6.5,5.5,4.5,3.5,2.5,1.5]
-csvStart = time.time()
+csvStart = time.time() - 601
 servoStart = time.time()
 servoQueue = []
 foodQueue = []
@@ -37,34 +37,42 @@ move = True
 update = True
 
 def sensor1(channel):
+    global passes
     passes[0] = passes[0] + 1
     #print "1"
 
 def sensor2(channel):
+    global passes
     passes[1] = passes[1] + 1
     print str(passes[1])
 
 def sensor3(channel):
+    global passes
     passes[2] = passes[2] + 1
     #print "3"
 
 def sensor4(channel):
+    global passes
     passes[3] = passes[3] + 1
     #print "4"
 
 def sensor5(channel):
+    global passes
     passes[4] = passes[4] + 1
     #print "5"
 
 def sensor6(channel):
+    global passes
     passes[5] = passes[5] + 1
     #print "6"
 
 def sensor7(channel):
+    global passes
     passes[6] = passes[6] + 1
     #print "7"
 
 def sensor8(channel):
+    global passes
     passes[7] = passes[7] + 1
     #print "8"
 
@@ -130,6 +138,7 @@ class csvThread(Thread):
          csvwrite = csv.writer(csvfile, delimiter=',')
          for index, item in enumerate(passes):
             csvwrite.writerow([index + 1] + [currentRevs[index]] + [dispenseRevs[index]] + [food[index]] + [time.asctime(time.localtime(time.time()))])
+      print "CSV Done"
 
 
 calls = [sensor1, sensor2, sensor3, sensor4, sensor5, sensor6, sensor7, sensor8]

@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 
 import time
-pin = 38
+pin = 22
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
 GPIO.setup(pin, GPIO.OUT)
@@ -38,10 +38,34 @@ mspc = 1000/ freq
 
     
 food = [11.75,10.85,9.6,8.4,7.5,6.5,5.5,4.5,3.5,2.5,1.5]
-    
-for index, item in enumerate(food):
-    pwm.start(item)
-    time.sleep(5)
+
+pwm.start(1.5)
+##for index, item in enumerate(food):
+##    pwm.start(11.75)
+##    pwm.ChangeDutyCycle(item)    
+##    print str(item)
+##    time.sleep(2)
+##    pwm.stop()
+##    time.sleep(2)
+
+pwm.start(10)
+time.sleep(1)
+##pwm.stop()
+time.sleep(1)
+pwm.start(9)
+time.sleep(1)
+##pwm.stop()
+time.sleep(1)
+pwm.start(8)
+time.sleep(1)
+##pwm.stop()
+time.sleep(1)
+pwm.start(7)
+time.sleep(1)
+##pwm.stop()
+time.sleep(1)
+
+
 
 ##pwm.start(1.5)
 ##time.sleep(1.5)
