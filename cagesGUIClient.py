@@ -14,16 +14,17 @@ print sock.recv(128)
 index = 0
 email = 0
 move = True
-
+fontSize =("Helvetica", 48) 
 servoQueue = []
 foodQueue = []
 
 top = Tk()
-cageFrame = LabelFrame(top,text="Current Cage",font = 18)
+top.attributes('-fullscreen', True)
+cageFrame = LabelFrame(top,text="Current Cage",font = fontSize)
 cageFrame.pack()
-currentFrame = LabelFrame(top, text = "Current Revolutions",font = 18)
+currentFrame = LabelFrame(top, text = "Current Revolutions",font = fontSize)
 currentFrame.pack()
-foodFrame = LabelFrame(top,text="Revolutions per food",font = 18)
+foodFrame = LabelFrame(top,text="Revolutions per food",font = fontSize)
 foodFrame.pack()
 selectFrame = Frame(top)
 selectFrame.pack()
@@ -70,20 +71,20 @@ def sequence(*functions):
       return return_value
    return func
 
-cageEntry = Entry(cageFrame, bd = 1,font = 18)
+cageEntry = Entry(cageFrame, bd = 1,font = fontSize)
 cageEntry.insert(0,str(index + 1))
 cageEntry.pack()
-currentEntry = Entry(currentFrame, bd = 1,font = 18)
+currentEntry = Entry(currentFrame, bd = 1,font = fontSize)
 currentEntry.insert(0,"1")
 currentEntry.pack()
-foodEntry = Entry(foodFrame,bd=1,font = 18)
+foodEntry = Entry(foodFrame,bd=1,font = fontSize)
 foodEntry.insert(0,"100")
 foodEntry.pack(side=BOTTOM)
-selectLeft = Button(selectFrame, text = "<", command = sequence(indexDown,refresh),font = 18)
+selectLeft = Button(selectFrame, text = "<", command = sequence(indexDown,refresh),font = fontSize)
 selectLeft.pack(side=LEFT)
-selectRight = Button(selectFrame, text = ">", command = sequence(indexUp,refresh),font = 18)
+selectRight = Button(selectFrame, text = ">", command = sequence(indexUp,refresh),font = fontSize)
 selectRight.pack(side=RIGHT)
-saveButton = Button(saveFrame, text ="Save", command = sequence(save,refresh),font = 18)
+saveButton = Button(saveFrame, text ="Save", command = sequence(save,refresh),font = fontSize)
 saveButton.pack()
 
 if __name__ == "__main__":

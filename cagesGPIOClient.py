@@ -120,9 +120,9 @@ class servoThread(Thread):
       print("Servo Start")
       self.servo.start(self.food)
       time.sleep(1.5)
-      self.servo.start(11.75)
+      self.servo.ChangeDutyCycle(11.75)
       time.sleep(1.5)
-      self.servo.stop()
+      self.servo.ChangeDutyCycle(0)
       print("Servo Done")
       move = True
 
@@ -150,6 +150,9 @@ for i in range(len(sensors)):
 for i in range(len(feeders)):
     GPIO.setup(feeders[i], GPIO.OUT)
     pwm[i] = GPIO.PWM(feeders[i], freq)
+    pwm[i].start(food[0])
+    time.sleep(1)
+    pwm[i].ChangeDutyCycle(0)
 
 print "Done Initializing"
 
