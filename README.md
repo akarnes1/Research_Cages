@@ -8,7 +8,7 @@ Required components
 -----------------------------
 | Software | Hardware | Optional |
 | -------- | -------- | -------- |
-| Python 2.7.9 | Servos | Custom PCB (Breakout board for servo powering and sensor connecting) |
+| Python 2.7.9 | Servos and the mounting hardware | Custom PCB (Breakout board for servo powering and sensor connecting) |
 | Bash | IR Sensors |     | 
 | Local version of this repository | Layfeyette Instruments Rat Cage with excersize wheel |    |
 
