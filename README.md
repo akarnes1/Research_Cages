@@ -5,21 +5,14 @@ This project was to outfit a rat cage with a system that record the revolutions 
 To start the code was written on a Raspberry Pi so it is recommended to implement this there.
 
 Required components
-----------------------------
-###Software 
-*Python 2.7.9 
-*Bash 
-*Local version of this repository 
+-----------------------------
+| Software | Hardware | Optional |
+| -------- | -------- | -------- |
+| Python 2.7.9 | Servos | Custom PCB (Breakout board for servo powering and sensor connecting) |
+| Bash | IR Sensors |     | 
+| Local version of this repository | Layfeyette Instruments Rat Cage with excersize wheel |    |
 
-###Hardware 
-*Servos 
-*IR Sensors 
-*Layfeyette Instruments Rat Cage with excersize wheel 
-
-###Optional 
-*Custom PCB (Breakout board for servo powering and sensor connecting) 
-
-##Quick Start
+Quick Start
 -----------------------------
 Have everything connected to the GPIO Pins outlined in the GPIOClient.
 Start running the files in order.
