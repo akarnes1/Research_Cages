@@ -122,6 +122,10 @@ class servoThread(Thread):
       time.sleep(1.5)
       self.servo.ChangeDutyCycle(11.75)
       time.sleep(1.5)
+      self.servo.start(self.food)
+      time.sleep(1.5)
+      self.servo.ChangeDutyCycle(11.75)
+      time.sleep(1.5)
       self.servo.ChangeDutyCycle(0)
       print("Servo Done")
       move = True
@@ -168,8 +172,8 @@ while 1:
             print "ID: " + str(index + 1) + " Revs: " + str(currentRevs[index]) + " Dispense: " + str(dispenseRevs[index])
             if (currentRevs[index] % dispenseRevs[index] == 0):
                 servoQueue.append(pwm[index])
-                foodQueue.append(food[index])
-                food[index] = food[index] + 1
+                foodIndex = currentRevs[index] / dispenseRevs[index]
+                foodQueue.append(food[foodIndex])
                 email = index
             
         if len(servoQueue) > 0 and move == True:
