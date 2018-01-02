@@ -6,7 +6,7 @@ from Tkinter import *
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Connect the socket to the port where the server is listening
-server_address = ('localhost', 8888)
+server_address = ('localhost', 8615)
 print "connecting to %s port %s" % server_address
 sock.connect(server_address)
 print sock.recv(128)
@@ -14,7 +14,7 @@ print sock.recv(128)
 index = 0
 email = 0
 move = True
-fontSize =("Helvetica", 48) 
+fontSize =("Helvetica", 24) 
 servoQueue = []
 foodQueue = []
 

@@ -31,6 +31,7 @@ csvStart = time.time() - 601
 servoStart = time.time()
 servoQueue = []
 foodQueue = []
+email = "akarnes1@asu.edu"
 
 email = False
 move = True
@@ -92,17 +93,21 @@ class updateThread(Thread):
 
 
 class emailThread(Thread):
-   def __init__(self, cageNumber):
+   def __init__(self, cageNumber, foodNumber):
       Thread.__init__(self)
       self.daemon = True
       self.cage = cageNumber
+      self.food = foodNumber
 
    def run(self):
+       global email
+       print("Email Start")
        server = smtplib.SMTP('smtp.gmail.com')
        server.starttls()
        server.login("researchcages@gmail.com","This is the password.")
-       msg = "Cage " + str(self.cage) + " has triggered the food dispenser."
-       server.sendmail("researchcages@gmail.com","akarnes1@asu.edu",msg)
+       msg = "Cage " + str(self.cage) + " has triggered the food dispenser " + str(self.food) + " times."
+       print(msg)
+       server.sendmail("researchcages@gmail.com",email,msg)
        server.quit()
        print("Email sent")
 
@@ -118,7 +123,11 @@ class servoThread(Thread):
    def run(self):
       global move
       print("Servo Start")
-      self.servo.start(self.food)
+      self.servo.ChangeDutyCycle(self.food)
+      time.sleep(1.5)
+      self.servo.ChangeDutyCycle(11.75)
+      time.sleep(1.5)
+      self.servo.ChangeDutyCycle(self.food)
       time.sleep(1.5)
       self.servo.ChangeDutyCycle(11.75)
       time.sleep(1.5)
@@ -168,9 +177,9 @@ while 1:
             print "ID: " + str(index + 1) + " Revs: " + str(currentRevs[index]) + " Dispense: " + str(dispenseRevs[index])
             if (currentRevs[index] % dispenseRevs[index] == 0):
                 servoQueue.append(pwm[index])
-                foodQueue.append(food[index])
-                food[index] = food[index] + 1
-                email = index
+                foodIndex = currentRevs[index] / dispenseRevs[index]
+                foodQueue.append(food[foodIndex])
+                email = (index,foodIndex)
             
         if len(servoQueue) > 0 and move == True:
             move = False
@@ -178,7 +187,8 @@ while 1:
             thread.start()
   
         if email != 0:
-            thread = emailThread(email)
+            #print("Email Thread")
+            thread = emailThread(email[0],email[1])
             thread.start()
             email = 0
                
