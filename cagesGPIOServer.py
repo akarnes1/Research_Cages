@@ -4,16 +4,7 @@ import RPi.GPIO as GPIO
 import csv
 import socket
 import sys
-from threading import Thread
-
-# Create a TCP/IP socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# Connect the socket to the port where the server is listening
-server_address = ('localhost', 8615)
-print "connecting to %s port %s" % server_address
-sock.connect(server_address)
-print sock.recv(128)
+from threading import *
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
@@ -174,7 +165,7 @@ class csvThread(Thread):
       global index, currentRevs, dispenseRevs
       with open('log.csv','a') as csvfile:
          csvwrite = csv.writer(csvfile, delimiter=',')
-         for index, item in enumerate(passes):
+         for index in range(len(passes)):
             csvwrite.writerow([index + 1] + [currentRevs[index]] + [dispenseRevs[index]] + [food[index]] + [time.asctime(time.localtime(time.time()))])
       print "CSV Done"
 
@@ -195,8 +186,9 @@ for i in range(len(feeders)):
 print "Done Initializing"
 
 while 1:
-    for index, item in enumerate(passes):
-        if(item >= 6):
+    print "Loop Start: " + str(time.time())
+    for index in range(len(passes)):
+        if(passes[index] >= 6):
             currentRevs[index] = currentRevs[index] + 1
             passes[index] = passes[index] - 6
             if update == True:
@@ -227,10 +219,13 @@ while 1:
             thread = csvThread()
             thread.start()
 
+    print "Loop End / Connection Start: " + str(time.time())
+
     conn, addr = s.accept()
     print 'Connected with ' + addr[0] + ':' + str(addr[1])
     start_new_thread(clientthread ,(conn,))
 
+    print "Connection End: " + str(time.time())
             
 for i in range(len(pwm)):
     pwm[i].stop()
