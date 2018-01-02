@@ -10,7 +10,7 @@ from threading import Thread
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Connect the socket to the port where the server is listening
-server_address = ('localhost', 8888)
+server_address = ('localhost', 8615)
 print "connecting to %s port %s" % server_address
 sock.connect(server_address)
 print sock.recv(128)
@@ -36,6 +36,22 @@ email = "akarnes1@asu.edu"
 email = False
 move = True
 update = True
+
+HOST = ''
+PORT = 8615
+ 
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+print 'Socket created'
+ 
+try:
+    s.bind((HOST, PORT))
+except socket.error as msg:
+    print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+    sys.exit()
+     
+print 'Socket bind complete'
+s.listen(10)
+print 'Socket now listening'
 
 def sensor1(channel):
     global passes
@@ -77,19 +93,32 @@ def sensor8(channel):
     passes[7] = passes[7] + 1
     #print "8"
 
-class updateThread(Thread):
-   def __init__(self,indexg,revsg):
-       Thread.__init__(self)
-       self.daemon = True
-       self.index = indexg
-       self.revs = revsg
-
-   def run(self):
-       global update
-       sock.sendall(str("update," + str(self.index) + "," + str(self.revs)))
-       sock.sendall(str("disp,"+str(index)))
-       dispenseRevs[index] = int(sock.recv(128))
-       update = True
+def clientthread(conn):
+    conn.send('Connected')
+    reply = "1"
+     
+    while True:  
+        data = conn.recv(128)
+        client = data.split(',')
+        print str(client)
+        index = int(client[1])
+        if client[0] == "disp":
+            reply = str(dispenseRevs[index])
+            conn.sendall(reply)
+            print reply
+        elif client[0] == "current":
+            reply = str(currentRevs[index])
+            conn.sendall(reply)
+            print reply
+        elif client[0] == "save":
+            dispenseRevs[index] = int(client[2])
+        elif client[0] == "update":
+            currentRevs[index] = int(client[2])
+            
+        if not data: 
+            break
+        
+    conn.close()
 
 
 class emailThread(Thread):
@@ -197,6 +226,10 @@ while 1:
             print("CSV Thread")
             thread = csvThread()
             thread.start()
+
+    conn, addr = s.accept()
+    print 'Connected with ' + addr[0] + ':' + str(addr[1])
+    start_new_thread(clientthread ,(conn,))
 
             
 for i in range(len(pwm)):
