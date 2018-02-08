@@ -14,78 +14,103 @@ print sock.recv(128)
 index = 0
 email = 0
 move = True
-fontSize =("Helvetica", 48) 
+fontSize = ("Helvetica", 48)
 servoQueue = []
 foodQueue = []
 
 top = Tk()
-top.attributes('-fullscreen', True)
-cageFrame = LabelFrame(top,text="Current Cage",font = fontSize)
+top.geometry("720x480")
+top.minsize(300, 100)
+cageFrame = LabelFrame(top, text="Current Cage", font=fontSize)
 cageFrame.pack()
-currentFrame = LabelFrame(top, text = "Current Revolutions",font = fontSize)
+currentFrame = LabelFrame(top, text="Current Revolutions", font=fontSize)
 currentFrame.pack()
-foodFrame = LabelFrame(top,text="Revolutions per food",font = fontSize)
+foodFrame = LabelFrame(top, text="Revolutions per food", font=fontSize)
 foodFrame.pack()
 selectFrame = Frame(top)
 selectFrame.pack()
 saveFrame = Frame(top)
 saveFrame.pack()
 
+
+def __init__(self):
+    self.tk = Tk()
+    self.tk.attributes('-zoomed', True)
+    self.frame = Frame(self.tk)
+    self.frame.pack()
+    self.state = False
+    self.tk.bind("<F11>", self.toggle_fullscreen)
+
+
 def save():
-   entered = foodEntry.get()[0:6]
-   sock.sendall(str("save," + str(index) + "," + entered))
-   print sock.recv(128)
+    entered = foodEntry.get()[0:6]
+    sock.sendall(str("save," + str(index) + "," + entered))
+    print sock.recv(128)
+
 
 def indexDown():
-   global index
-   if index > 0:
-      index = index - 1
-   sock.sendall(str("disp," + str(index)))
-   foodEntry.delete(0,END)
-   foodEntry.insert(0,str(sock.recv(128)))
-   print str(index)
+    global index
+    if index > 0:
+        index = index - 1
+    sock.sendall(str("disp," + str(index)))
+    foodEntry.delete(0, END)
+    foodEntry.insert(0, str(sock.recv(128)))
+    print str(index)
+
 
 def indexUp():
-   global index
-   if index < 7:
-      index = index + 1
-   sock.sendall(str("disp," + str(index)))
-   foodEntry.delete(0,END)
-   foodEntry.insert(0,str(sock.recv(128)))
-   print str(index)
+    global index
+    if index < 7:
+        index = index + 1
+    sock.sendall(str("disp," + str(index)))
+    foodEntry.delete(0, END)
+    foodEntry.insert(0, str(sock.recv(128)))
+    print str(index)
+
 
 def refresh():
     global index
-    cageEntry.delete(0,END)
-    cageEntry.insert(0,str(index + 1))
+    cageEntry.delete(0, END)
+    cageEntry.insert(0, str(index + 1))
     sock.sendall(str("current," + str(index)))
-    currentEntry.delete(0,END)
-    currentEntry.insert(0,str(sock.recv(128)))
+    currentEntry.delete(0, END)
+    currentEntry.insert(0, str(sock.recv(128)))
     top.after(1000, refresh)
 
-def sequence(*functions):
-   def func(*args, **kwargs):
-      return_value = None
-      for function in functions:
-         return_value = function(*args, **kwargs)
-      return return_value
-   return func
 
-cageEntry = Entry(cageFrame, bd = 1,font = fontSize)
-cageEntry.insert(0,str(index + 1))
+def sequence(*functions):
+    def func(*args, **kwargs):
+        return_value = None
+        for function in functions:
+            return_value = function(*args, **kwargs)
+        return return_value
+    return func
+
+
+def toggle_fullscreen(self, event=None):
+    self.state = not self.state  # Just toggling the boolean
+    self.tk.attributes("-fullscreen", self.state)
+    return "break"
+
+cageEntry = Entry(cageFrame, bd=1, font=fontSize)
+cageEntry.insert(0, str(index + 1))
 cageEntry.pack()
-currentEntry = Entry(currentFrame, bd = 1,font = fontSize)
-currentEntry.insert(0,"1")
+currentEntry = Entry(currentFrame, bd=1, font=fontSize)
+currentEntry.insert(0, "1")
 currentEntry.pack()
-foodEntry = Entry(foodFrame,bd=1,font = fontSize)
-foodEntry.insert(0,"100")
+foodEntry = Entry(foodFrame, bd=1, font=fontSize)
+foodEntry.insert(0, "100")
 foodEntry.pack(side=BOTTOM)
-selectLeft = Button(selectFrame, text = "<", command = sequence(indexDown,refresh),font = fontSize)
+selectLeft = Button(selectFrame, text="<", command=sequence(
+    indexDown, refresh), font=fontSize)
 selectLeft.pack(side=LEFT)
-selectRight = Button(selectFrame, text = ">", command = sequence(indexUp,refresh),font = fontSize)
+selectRight = Button(selectFrame, text=">", command=sequence(
+    indexUp, refresh), font=fontSize)
 selectRight.pack(side=RIGHT)
-saveButton = Button(saveFrame, text ="Save", command = sequence(save,refresh),font = fontSize)
+saveButton = Button(saveFrame, text="Save",
+                    command=sequence(save, refresh), font=fontSize)
 saveButton.pack()
 
+
 if __name__ == "__main__":
-   top.mainloop()
+    top.mainloop()

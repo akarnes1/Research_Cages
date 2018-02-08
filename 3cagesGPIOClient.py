@@ -44,7 +44,7 @@ def sensor1(channel):
 def sensor2(channel):
     global passes
     passes[1] = passes[1] + 1
-    print str(passes[1])
+    #print str(passes[1])
 
 def sensor3(channel):
     global passes
