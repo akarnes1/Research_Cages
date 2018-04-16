@@ -1,6 +1,5 @@
 # import RPI.GPIO as gpio
 
-
 class button():
     
     def __init__(self,xLoc,yLoc,wide,tall,colr,colg,colb,word):
@@ -33,23 +32,27 @@ class button():
         
     
 def setup():
-    global cageNumber, revolutions
+    global cageNumber, currentRevolutions, revsPerFood
+    revsPerFood = ["100","10","10","10","10","10","10","10"]
     cageNumber = 1
-    revolutions = [1,2,3,4,5,6,7,8]
+    currentRevolutions = [1,2,3,4,5,6,7,8]
     size(640, 480)
     this.getSurface().setResizable(True)
     f = createFont("Georgia", 48)
     textFont(f)
 
 def draw():
-    global cageNumber, revolutions, leftButton, rightButton
+    global cageNumber, currentRevolutions, leftButton, rightButton, revsPerFood
     background(0)
     fill(255,255,255)
-    textAlign(CENTER)
+    textAlign(CENTER,CENTER)
     text("Cage: " + str(cageNumber),width/2,height/10)
-    text("Revolutions: " + str(revolutions[cageNumber-1]),width/2,(width/10)+50)
+    text("Current revolutions: " + str(currentRevolutions[cageNumber-1]),width/2,(width/10)+50)
+    text("Revolutions per food: " + str(revsPerFood[cageNumber - 1]),width/2,(width/10)+100);
     leftButton = button(width/2-105,height - 105,75,75,125,125,125,"<<")
     rightButton = button(width/2 + 5,height - 105,75,75,125,125,125,">>")
+    leftButton.hover()
+    rightButton.hover()
 
 def mousePressed():
     global cageNumber
@@ -59,3 +62,22 @@ def mousePressed():
     if (rightButton.hover()): 
         if(cageNumber < 8):
             cageNumber = cageNumber + 1
+ 
+def keyPressed():
+    global revsPerFood, cageNumber
+    if (key == BACKSPACE):
+        if (len(revsPerFood[cageNumber - 1]) > 0):
+            revsPerFood[cageNumber - 1] = revsPerFood[cageNumber - 1][0: len(revsPerFood[cageNumber - 1])-1]
+    elif (key == DELETE):
+        revsPerFood[cageNumber - 1] = 0
+    elif (keyCode == LEFT):
+        if(cageNumber > 1):
+            cageNumber = cageNumber - 1
+    elif (keyCode == RIGHT):
+        if(cageNumber < 8):
+            cageNumber = cageNumber + 1
+    elif (key >= '0' and key <= '9'):
+        try: 
+            revsPerFood[cageNumber - 1] = revsPerFood[cageNumber - 1] + str(int(chr(keyCode)))
+        except:
+            print("invalid")
