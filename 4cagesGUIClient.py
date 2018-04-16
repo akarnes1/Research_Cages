@@ -19,7 +19,7 @@ servoQueue = []
 foodQueue = []
 
 top = Tk()
-top.geometry("720x480")
+top.geometry("720x720")
 top.minsize(300, 100)
 cageFrame = LabelFrame(top, text="Current Cage", font=fontSize)
 cageFrame.pack()
@@ -33,19 +33,18 @@ saveFrame = Frame(top)
 saveFrame.pack()
 
 
-def __init__(self):
-    self.tk = Tk()
-    self.tk.attributes('-zoomed', True)
-    self.frame = Frame(self.tk)
-    self.frame.pack()
-    self.state = False
-    self.tk.bind("<F11>", self.toggle_fullscreen)
+def __init__():
+    top.attributes('-zoomed', True)
+    top.frame = Frame(top)
+    top.frame.pack()
+    top.state = False
+    top.bind("<F11>", toggle_fullscreen)
 
 
 def save():
     entered = foodEntry.get()[0:6]
     sock.sendall(str("save," + str(index) + "," + entered))
-    print sock.recv(128)
+    #print sock.recv(128)
 
 
 def indexDown():
@@ -88,9 +87,10 @@ def sequence(*functions):
 
 
 def toggle_fullscreen(self, event=None):
-    self.state = not self.state  # Just toggling the boolean
+    self.state = not self.state
     self.tk.attributes("-fullscreen", self.state)
     return "break"
+
 
 cageEntry = Entry(cageFrame, bd=1, font=fontSize)
 cageEntry.insert(0, str(index + 1))
