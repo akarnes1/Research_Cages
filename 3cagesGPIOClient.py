@@ -155,8 +155,7 @@ class csvThread(Thread):
         print "CSV Done"
 
 
-calls = [sensor1, sensor2, sensor3, sensor4,
-         sensor5, sensor6, sensor7, sensor8]
+calls = [sensor1, sensor2, sensor3, sensor4, sensor5, sensor6, sensor7, sensor8]
 
 for i in range(len(sensors)):
     GPIO.setup(sensors[i], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
