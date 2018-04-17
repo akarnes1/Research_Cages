@@ -1,5 +1,7 @@
 # import RPi.GPIO as gpio
 import time
+import csv
+import json
 from threading import Thread
 
 class interrupt():
@@ -116,15 +118,14 @@ def setup():
     f = createFont("Georgia", 48)
     textFont(f)
     
-    freq = 50
-
-    sensors = [19, 21, 23, 29, 31, 33, 35, 37]
-    feeders = [18, 38, 24, 26, 32, 36, 22, 40]
+    CONST_PWM_FREQUENCY = 50
+    CONST_SENSORS = [19, 21, 23, 29, 31, 33, 35, 37]
+    CONST_FEEDERS = [18, 38, 24, 26, 32, 36, 22, 40]
+    CONST_FOOD_POSITIONS = [11.75, 10.85, 9.6, 8.4, 7.5, 6.5, 5.5, 4.5, 3.5, 2.5, 1.5]
     pwm = [0, 0, 0, 0, 0, 0, 0, 0]
     passes = [0, 0, 0, 0, 0, 0, 0, 0]
-    currentRevolutions = [1, 1, 1, 1, 1, 1, 1, 1]
+    currentRevolutions = [0, 0, 0, 0, 0, 0, 0, 0]
     revsPerFood = ["10", "10", "10", "10", "10", "10", "10", "10"]
-    food = [11.75, 10.85, 9.6, 8.4, 7.5, 6.5, 5.5, 4.5, 3.5, 2.5, 1.5]
     csvStart = time.time() - 601
     servoStart = time.time()
     servoQueue = []
