@@ -1,9 +1,26 @@
 # import RPi.GPIO as gpio
 import time
 import csv
-import json
+import smtplib
 from threading import Thread
 
+#Constants used for setting up the GPIO pins on the breakout board
+CONST_PWM_FREQUENCY = 50
+CONST_SENSORS = [19, 21, 23, 29, 31, 33, 35, 37]
+CONST_FEEDERS = [18, 38, 24, 26, 32, 36, 22, 40]
+CONST_FOOD_POSITIONS = [11.75, 10.85, 9.6, 8.4, 7.5, 6.5, 5.5, 4.5, 3.5, 2.5, 1.5]
+
+#Global variables that are used in the other methods a lot.
+cageNumber = 1
+passes = [0, 0, 0, 0, 0, 0, 0, 0]
+currentRevolutions = [1000, 500, 0, 0, 0, 0, 0, 100000]
+revsPerFood = ["10", "10", "10", "10", "10", "10", "10", "10"]
+emailAddress = ""
+servoQueue = []
+foodQueue = []
+email = 0
+
+#Attempt at making the interrupts used for counting revolutions better.
 class interrupt():
     def __init__(self,index, pin):
         self.index = index
@@ -14,6 +31,7 @@ class interrupt():
         global passes
         passes[self.index] = passes[self.index] + 1
         
+#An attempt at making the feeder servos easier to create.
 class feeder():
     def __init__(self,pin,startPos,freq):
         gpio.setup(pin,gpio.OUT)
@@ -23,6 +41,7 @@ class feeder():
         time.sleep(1)
         self.pwm.ChangeDutyCycle(0)
         
+#A class to run the servo movement code while not delaying the execution of the rest of the environment
 class servoThread(Thread):
     def __init__(self, servo, food):
         Thread.__init__(self)
@@ -46,6 +65,7 @@ class servoThread(Thread):
         print("Servo Done")
         move = True
         
+#The code to send an email while not delaying the rest of the code
 class emailThread(Thread):
     def __init__(self, cageNumber):
         Thread.__init__(self)
@@ -54,29 +74,32 @@ class emailThread(Thread):
 
     def run(self):
         global emailAddress
-        server = smtplib.SMTP('smtp.gmail.com')
-        server.starttls()
-        server.login("researchcages@gmail.com", "This is the password.")
-        msg = "Cage " + str(self.cage) + " has triggered the food dispenser."
-        server.sendmail("researchcages@gmail.com", emailAddress, msg)
-        server.quit()
-        print("Email sent")
+        if(emailAddress != ""):
+            server = smtplib.SMTP('smtp.gmail.com',587)
+            server.starttls()
+            server.login("researchcages@gmail.com", "This is the password.")
+            msg = "Cage " + str(self.cage) + " has triggered the food dispenser."
+            server.sendmail("researchcages@gmail.com", emailAddress, msg)
+            server.quit()
+            print("Email sent")
+        else:
+            print("Email Address is not a value")
         
+#The code to save the current variables to a csv for use in data analysis
 class csvThread(Thread):
     def __init__(self):
         Thread.__init__(self)
         self.daemon = True
 
     def run(self):
-        global index, currentRevs, dispenseRevs
+        global currentRevolutions, revsPerFood
         with open('log.csv', 'a') as csvfile:
             csvwrite = csv.writer(csvfile, delimiter=',')
             for index, item in enumerate(passes):
-                csvwrite.writerow([index + 1] + [currentRevs[index]] + [dispenseRevs[index]] + [
-                                  food[index]] + [time.asctime(time.localtime(time.time()))])
+                csvwrite.writerow([index + 1] + [currentRevolutions[index]] + [revsPerFood[index]] + [currentRevolutions[index] / int(revsPerFood[index])] +  [time.asctime(time.localtime(time.time()))])
         print "CSV Done"
 
-
+#A class to make on screen buttons easy to call, update, and listen to.
 class button():
     
     def __init__(self,xLoc,yLoc,wide,tall,colr,colg,colb,word):
@@ -93,7 +116,8 @@ class button():
         fill(255,255,255)
         textAlign(CENTER,CENTER)
         text(self.word,self.x + (self.wid/2), self.y + (self.hei / 2))
-        
+    
+    #The code that changes a buttons color on mouse over.    
     def hover(self):
         textAlign(CENTER,CENTER)
         if (mouseX >= self.x and mouseX <= self.x+self.wid and mouseY >= self.y and mouseY <= self.y+self.hei):
@@ -109,34 +133,33 @@ class button():
             text(self.word,self.x + (self.wid/2), self.y + (self.hei / 2))
             return False;
         
-    
+#The code to run once before everythin else begins
 def setup():
-    global cageNumber, currentRevolutions, revsPerFood
-    cageNumber = 1
+    global currentRevolutions, revsPerFood, emailAddress, csvStart
     size(640, 480)
     this.getSurface().setResizable(True)
     f = createFont("Georgia", 48)
     textFont(f)
+    frameRate(200)
     
-    CONST_PWM_FREQUENCY = 50
-    CONST_SENSORS = [19, 21, 23, 29, 31, 33, 35, 37]
-    CONST_FEEDERS = [18, 38, 24, 26, 32, 36, 22, 40]
-    CONST_FOOD_POSITIONS = [11.75, 10.85, 9.6, 8.4, 7.5, 6.5, 5.5, 4.5, 3.5, 2.5, 1.5]
+    #The code to load in the defined settings.
+    data = loadJSONObject('startSettings.json').getJSONObject("settings")
+    emailAddress = data.getString("emailAddress")
+    jsonRevs = data.getJSONArray("revsPerFood")
+    for i in range(0,8):
+        revsPerFood[i] = jsonRevs.getString(i)
+        
     pwm = [0, 0, 0, 0, 0, 0, 0, 0]
-    passes = [0, 0, 0, 0, 0, 0, 0, 0]
-    currentRevolutions = [0, 0, 0, 0, 0, 0, 0, 0]
-    revsPerFood = ["10", "10", "10", "10", "10", "10", "10", "10"]
     csvStart = time.time() - 601
     servoStart = time.time()
-    servoQueue = []
-    foodQueue = []
     
     email = False
     move = True
     update = True
 
+#This code runs in an infinite loop after setup is called.     
 def draw():
-    global cageNumber, currentRevolutions, leftButton, rightButton, revsPerFood
+    global cageNumber, currentRevolutions, leftButton, rightButton, revsPerFood, servoQueue, foodQueue, email, csvStart    
     background(175)
     stroke(0,0,0)
     textX = width/2 -150
@@ -153,10 +176,45 @@ def draw():
     text(str(currentRevolutions[cageNumber-1]),textX,textY + 150)
     text("Revolutions per food: ",textX,textY + 200)
     text(str(revsPerFood[cageNumber - 1]),textX,textY + 250)
+    text(int(frameRate),20,20)
     leftButton = button(textX + 150,height/10 -20,50,50,150,150,150,"-")
     rightButton = button(textX + 210,height/10 - 20,50,50,150,150,150,"+")
     leftButton.hover()
     rightButton.hover()
+    
+    for index, item in enumerate(passes):
+        if(item >= 6):
+            currentRevs[index] = currentRevs[index] + 1
+            passes[index] = passes[index] - 6
+            if update == True:
+                update = False
+                thread = updateThread(index, currentRevs[index])
+                thread.start()
+            print "ID: " + str(index + 1) + " Revs: " + \
+                str(currentRevs[index]) + " Dispense: " + \
+                str(dispenseRevs[index])
+            if (currentRevs[index] % dispenseRevs[index] == 0):
+                servoQueue.append(pwm[index])
+                foodIndex = currentRevs[index] / dispenseRevs[index]
+                foodQueue.append(food[foodIndex])
+                email = index
+
+        if len(servoQueue) > 0 and move == True:
+            move = False
+            thread = servoThread(servoQueue.pop(), foodQueue.pop())
+            thread.start()
+
+        if email != 0:
+            thread = emailThread(email)
+            thread.start()
+            email = 0
+
+        if(csvStart + 600 < time.time()):
+            csvStart = time.time()
+            print("CSV Thread")
+            thread = csvThread()
+            thread.start()
+
 
 def mousePressed():
     global cageNumber
