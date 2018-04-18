@@ -106,11 +106,15 @@ class saveThread(Thread):
         self.daemon = True
         
     def run(self):
-        global revsPerFood, emailAddress, data
-        data.setString("emailAddress",emailAddress)            
-        data.setJSONArray("revsPerFood",revsPerFood)
-        data.setJSONObject("settings",data)
-        saveJSONObject(data,"newSettings.json")
+        global revsPerFood, emailAddress
+        data = loadJSONObject("startSettings.json")
+        data.setString("emailAddress",emailAddress)
+        jsonRevs = data.getJSONArray("revsPerFood")
+        for i in range(0,8):
+            jsonRevs.setString(i,revsPerFood[i])
+            
+        # data.setJSONObject("settings",data)
+        saveJSONObject(data,"startSettings.json")
         print("Saved Settings")
 
 #A class to make on screen buttons easy to call, update, and listen to.
@@ -149,7 +153,7 @@ class button():
         
 #The code to run once before everythin else begins
 def setup():
-    global currentRevolutions, revsPerFood, emailAddress, csvStart, email, move, update, data
+    global currentRevolutions, revsPerFood, emailAddress, csvStart, email, move, update
     size(1280, 720)
     this.getSurface().setResizable(True)
     f = createFont("Helvetica", 48)
@@ -157,7 +161,7 @@ def setup():
     frameRate(1000)
     
     #The code to load in the defined settings.
-    data = loadJSONObject('startSettings.json').getJSONObject("settings")
+    data = loadJSONObject('startSettings.json')
     emailAddress = data.getString("emailAddress")
     jsonRevs = data.getJSONArray("revsPerFood")
     for i in range(0,8):
