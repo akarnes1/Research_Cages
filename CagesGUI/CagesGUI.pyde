@@ -1,4 +1,4 @@
-# import RPi.GPIO as gpio
+import RPi.GPIO as gpio
 import time
 import csv
 import smtplib
@@ -16,6 +16,8 @@ passes = [0, 0, 0, 0, 0, 0, 0, 0]
 currentRevolutions = [1000, 500, 0, 0, 0, 0, 0, 100000]
 revsPerFood = ["10", "10", "10", "10", "10", "10", "10", "10"]
 emailAddress = ""
+pwm = []
+sensors = []
 servoQueue = []
 foodQueue = []
 email = 0
@@ -40,6 +42,9 @@ class feeder():
         self.pwm.start(startPos)
         time.sleep(1)
         self.pwm.ChangeDutyCycle(0)
+        
+    def handOff(self):
+        return self.pwm
         
 #A class to run the servo movement code while not delaying the execution of the rest of the environment
 class servoThread(Thread):
@@ -133,7 +138,7 @@ class button():
         rect(self.x,self.y,self.wid,self.hei)
         fill(255,255,255)
         textAlign(CENTER,CENTER)
-        text(self.word,self.x + (self.wid/2), self.y + (self.hei / 2))
+        text(self.word,self.x + (self.wid/2), self.y + (self.hei / 2) - 12)
     
     #The code that changes a buttons color on mouse over.    
     def hover(self):
@@ -142,18 +147,18 @@ class button():
             fill(255,255,255)
             rect(self.x,self.y,self.wid,self.hei)
             fill(self.r,self.g,self.b)        
-            text(self.word,self.x + (self.wid/2), self.y + (self.hei / 2))
+            text(self.word,self.x + (self.wid/2), self.y + (self.hei / 2) - 12)
             return True;
         else:
             fill(self.r,self.g,self.b)
             rect(self.x,self.y,self.wid,self.hei)
             fill(255,255,255)
-            text(self.word,self.x + (self.wid/2), self.y + (self.hei / 2))
+            text(self.word,self.x + (self.wid/2), self.y + (self.hei / 2) - 12)
             return False;
         
 #The code to run once before everythin else begins
 def setup():
-    global currentRevolutions, revsPerFood, emailAddress, csvStart, email, move, update
+    global currentRevolutions, revsPerFood, emailAddress, csvStart, email, move, update, sensors, pwm
     size(1280, 720)
     this.getSurface().setResizable(True)
     f = createFont("Helvetica", 48)
@@ -167,12 +172,20 @@ def setup():
     for i in range(0,8):
         revsPerFood[i] = jsonRevs.getString(i)
         
-    pwm = [0, 0, 0, 0, 0, 0, 0, 0]
     csvStart = time.time() - 601
     servoStart = time.time()
     
     email = 0
     move = True
+    
+    for index, item  in enumerate(CONST_SENSORS):
+        sensors[index] = interrupt(index,item)
+        print("Interrupt: " + str(index))
+        
+    for index, item in enumerate(CONST_FEEDERS):
+        pwm[index] = feeder(item,CONST_FOOD_POSITIONS[0],CONST_PWM_FREQUENCY)
+        time.sleep(500)
+        print("Servo: " + str(index))
 
 #This code runs in an infinite loop after setup is called.     
 def draw():
