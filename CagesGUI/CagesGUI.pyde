@@ -45,7 +45,7 @@ class feeder():
 class servoThread(Thread):
     def __init__(self, servo, food):
         Thread.__init__(self)
-        self.daemon = True
+        self.daemon = False
         self.servo = servo
         self.food = food
         print("Food pos: " + str(self.food))
@@ -99,6 +99,20 @@ class csvThread(Thread):
                 csvwrite.writerow([index + 1] + [currentRevolutions[index]] + [revsPerFood[index]] + [currentRevolutions[index] / int(revsPerFood[index])] +  [time.asctime(time.localtime(time.time()))])
         print "CSV Done"
 
+#A class to save the settings.        
+class saveThread(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+        self.daemon = True
+        
+    def run(self):
+        global revsPerFood, emailAddress, data
+        data.setString("emailAddress",emailAddress)            
+        data.setJSONArray("revsPerFood",revsPerFood)
+        data.setJSONObject("settings",data)
+        saveJSONObject(data,"newSettings.json")
+        print("Saved Settings")
+
 #A class to make on screen buttons easy to call, update, and listen to.
 class button():
     
@@ -135,12 +149,12 @@ class button():
         
 #The code to run once before everythin else begins
 def setup():
-    global currentRevolutions, revsPerFood, emailAddress, csvStart
-    size(640, 480)
+    global currentRevolutions, revsPerFood, emailAddress, csvStart, email, move, update, data
+    size(1280, 720)
     this.getSurface().setResizable(True)
-    f = createFont("Georgia", 48)
+    f = createFont("Helvetica", 48)
     textFont(f)
-    frameRate(200)
+    frameRate(1000)
     
     #The code to load in the defined settings.
     data = loadJSONObject('startSettings.json').getJSONObject("settings")
@@ -153,13 +167,14 @@ def setup():
     csvStart = time.time() - 601
     servoStart = time.time()
     
-    email = False
+    email = 0
     move = True
-    update = True
 
 #This code runs in an infinite loop after setup is called.     
 def draw():
-    global cageNumber, currentRevolutions, leftButton, rightButton, revsPerFood, servoQueue, foodQueue, email, csvStart    
+    global cageNumber, currentRevolutions, leftButton, rightButton, saveButton, revsPerFood, servoQueue, foodQueue, email, csvStart    
+    
+    #This is where the display gets rendered from
     background(175)
     stroke(0,0,0)
     textX = width/2 -150
@@ -179,17 +194,16 @@ def draw():
     text(int(frameRate),20,20)
     leftButton = button(textX + 150,height/10 -20,50,50,150,150,150,"-")
     rightButton = button(textX + 210,height/10 - 20,50,50,150,150,150,"+")
+    saveButton = button(textX,textY + 300, 300, 60,150,150,150,"Save Settings")
     leftButton.hover()
     rightButton.hover()
+    saveButton.hover()
     
+    #This is what updates the current revolutions based on the passes array
     for index, item in enumerate(passes):
         if(item >= 6):
             currentRevs[index] = currentRevs[index] + 1
             passes[index] = passes[index] - 6
-            if update == True:
-                update = False
-                thread = updateThread(index, currentRevs[index])
-                thread.start()
             print "ID: " + str(index + 1) + " Revs: " + \
                 str(currentRevs[index]) + " Dispense: " + \
                 str(dispenseRevs[index])
@@ -199,19 +213,22 @@ def draw():
                 foodQueue.append(food[foodIndex])
                 email = index
 
+        #this calls the servo to move only one at a time
         if len(servoQueue) > 0 and move == True:
             move = False
             thread = servoThread(servoQueue.pop(), foodQueue.pop())
             thread.start()
 
+        #this starts sending an email when a cage triggers the food
         if email != 0:
             thread = emailThread(email)
             thread.start()
             email = 0
 
+        #This saves the variables currentRevolutions, revsPerFood, and number of times dispensed to a csv for analysis
         if(csvStart + 600 < time.time()):
             csvStart = time.time()
-            print("CSV Thread")
+            print("CSV Thread: " + str(time.asctime(time.localtime(time.time()))))
             thread = csvThread()
             thread.start()
 
@@ -224,6 +241,10 @@ def mousePressed():
     if (rightButton.hover()): 
         if(cageNumber < 8):
             cageNumber = cageNumber + 1
+    if (saveButton.hover()):
+        print("Begun saving settings")
+        thread = saveThread()
+        thread.start()
  
 def keyPressed():
     global revsPerFood, cageNumber
