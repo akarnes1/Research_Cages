@@ -1,4 +1,4 @@
-import RPi.GPIO as gpio
+#import RPi.GPIO as gpio
 import time
 import csv
 import smtplib
@@ -178,14 +178,14 @@ def setup():
     email = 0
     move = True
     
-    for index, item  in enumerate(CONST_SENSORS):
-        sensors[index] = interrupt(index,item)
-        print("Interrupt: " + str(index))
+    # for index, item  in enumerate(CONST_SENSORS):
+    #     sensors[index] = interrupt(index,item)
+    #     print("Interrupt: " + str(index))
         
-    for index, item in enumerate(CONST_FEEDERS):
-        pwm[index] = feeder(item,CONST_FOOD_POSITIONS[0],CONST_PWM_FREQUENCY)
-        time.sleep(500)
-        print("Servo: " + str(index))
+    # for index, item in enumerate(CONST_FEEDERS):
+    #     pwm[index] = feeder(item,CONST_FOOD_POSITIONS[0],CONST_PWM_FREQUENCY)
+    #     time.sleep(500)
+    #     print("Servo: " + str(index))
 
 #This code runs in an infinite loop after setup is called.     
 def draw():
