@@ -5,7 +5,7 @@ from Tkinter import *
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Connect the socket to the port where the server is listening
+S# Connect the socket to the port where the server is listening
 server_address = ('localhost', 8888)
 print "connecting to %s port %s" % server_address
 sock.connect(server_address)
@@ -14,12 +14,12 @@ print sock.recv(128)
 index = 0
 email = 0
 move = True
-fontSize = ("Helvetica", 48)
+fontSize = ("Helvetica", 32)
 servoQueue = []
 foodQueue = []
 
 top = Tk()
-top.geometry("720x480")
+top.geometry("1920x1023")
 top.minsize(300, 100)
 cageFrame = LabelFrame(top, text="Current Cage", font=fontSize)
 cageFrame.pack()
