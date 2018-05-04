@@ -1,4 +1,4 @@
-add_library('RPi.GPIO')
+add_library('io')
 import time
 import csv
 import smtplib
