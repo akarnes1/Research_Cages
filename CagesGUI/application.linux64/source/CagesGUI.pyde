@@ -1,4 +1,4 @@
-#import RPi.GPIO as gpio
+import RPi.GPIO as gpio
 import time
 import csv
 import smtplib
@@ -13,7 +13,7 @@ CONST_FOOD_POSITIONS = [11.75, 10.85, 9.6, 8.4, 7.5, 6.5, 5.5, 4.5, 3.5, 2.5, 1.
 #Global variables that are used in the other methods a lot.
 cageNumber = 1
 passes = [0, 0, 0, 0, 0, 0, 0, 0]
-currentRevolutions = [1000, 500, 0, 0, 0, 0, 0, 100000]
+currentRevolutions = [0, 0, 0, 0, 0, 0, 0, 0]
 revsPerFood = ["10", "10", "10", "10", "10", "10", "10", "10"]
 emailAddress = ""
 pwm = []
@@ -178,14 +178,14 @@ def setup():
     email = 0
     move = True
     
-    # for index, item  in enumerate(CONST_SENSORS):
-    #     sensors[index] = interrupt(index,item)
-    #     print("Interrupt: " + str(index))
+    for index, item  in enumerate(CONST_SENSORS):
+        sensors[index] = interrupt(index,item)
+        print("Interrupt: " + str(index))
         
-    # for index, item in enumerate(CONST_FEEDERS):
-    #     pwm[index] = feeder(item,CONST_FOOD_POSITIONS[0],CONST_PWM_FREQUENCY)
-    #     time.sleep(500)
-    #     print("Servo: " + str(index))
+    for index, item in enumerate(CONST_FEEDERS):
+        pwm[index] = feeder(item,CONST_FOOD_POSITIONS[0],CONST_PWM_FREQUENCY)
+        time.sleep(500)
+        print("Servo: " + str(index))
 
 #This code runs in an infinite loop after setup is called.     
 def draw():
