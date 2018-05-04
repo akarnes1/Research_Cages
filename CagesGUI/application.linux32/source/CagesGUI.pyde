@@ -1,4 +1,4 @@
-import RPi.GPIO as gpio
+import processing.io
 import time
 import csv
 import smtplib
@@ -26,8 +26,8 @@ email = 0
 class interrupt():
     def __init__(self,index, pin):
         self.index = index
-        gpio.setup(pin,gpio.IN, pull_up_down = gpio.PUD_DOWN)
-        gpio.add_event_detect(pin, gpio.FALLING, callback=self.update(), bouncetime = 10)
+        GPIO.setup(pin,GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+        GPIO.add_event_detect(pin, GPIO.FALLING, callback=self.update(), bouncetime = 10)
         
     def update(self):
         global passes
@@ -36,9 +36,9 @@ class interrupt():
 #An attempt at making the feeder servos easier to create.
 class feeder():
     def __init__(self,pin,startPos,freq):
-        gpio.setup(pin,gpio.OUT)
+        GPIO.setup(pin,GPIO.OUT)
         self.freq = freq
-        self.pwm = gpio.PWM(pin,freq)
+        self.pwm = GPIO.PWM(pin,freq)
         self.pwm.start(startPos)
         time.sleep(1)
         self.pwm.ChangeDutyCycle(0)
