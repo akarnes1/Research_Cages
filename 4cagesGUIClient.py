@@ -101,11 +101,9 @@ currentEntry.pack()
 foodEntry = Entry(foodFrame, bd=1, font=fontSize)
 foodEntry.insert(0, "100")
 foodEntry.pack(side=BOTTOM)
-selectLeft = Button(selectFrame, text="<", command=sequence(
-    indexDown, refresh), font=fontSize)
+selectLeft = Button(selectFrame, text="<", command=sequence(indexDown, refresh), font=fontSize)
 selectLeft.pack(side=LEFT)
-selectRight = Button(selectFrame, text=">", command=sequence(
-    indexUp, refresh), font=fontSize)
+selectRight = Button(selectFrame, text=">", command=sequence(indexUp, refresh), font=fontSize)
 selectRight.pack(side=RIGHT)
 saveButton = Button(saveFrame, text="Save",
                     command=sequence(save, refresh), font=fontSize)
