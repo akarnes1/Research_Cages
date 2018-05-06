@@ -1,16 +1,33 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-
+import csv
+import smtplib
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+import time
+from threading import Thread
+
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QPushButton,
+                             QVBoxLayout, QWidget, QLineEdit)
+
+# import RPi.GPIO as GPIO
 
 
 class Example():
 
     def __init__(self):
+        self.initSettings()
+        self.initGPIO()
+        self.initGUI()
+
+    def initSettings(self):
+        # The code to load in the defined settings.
+        self.emailAddress = "akarnes1@asu.edu"
+        # TODO: Add in JSON reading here
+
+    def initGUI(self):
         self.cageNum = 1
         app = QApplication(sys.argv)
         font = QFont("Times", 48)
@@ -30,7 +47,14 @@ class Example():
         # The food dispense revs text
         self.foodRevolutionsText = QLabel(window)
         self.foodRevolutionsText.setFont(font)
-        self.foodRevolutionsText.setText("Food: " + str(self.cageNum))
+        self.foodRevolutionsText.setText(
+            "Food: " + str(self.revolutionsPerFood[self.cageNum - 1]))
+
+        # The Food dispense revs text box
+        self.foodRevolutionsEdit = QLineEdit()
+        self.foodRevolutionsEdit.setFont(font)
+        self.foodRevolutionsEdit.setText(str(self.cageNum))
+        self.foodRevolutionsEdit.textChanged[str].connect(self.textChanged)
 
         # The right Button
         rightBtn = QPushButton(">>", window)
@@ -67,12 +91,19 @@ class Example():
         foodBox.addWidget(self.foodRevolutionsText)
         foodBox.addStretch(1)
 
+        # The placement of the food edit
+        editBox = QHBoxLayout()
+        editBox.addStretch(1)
+        editBox.addWidget(self.foodRevolutionsEdit)
+        editBox.addStretch(1)
+
         # The overall window layout
         vbox = QVBoxLayout()
         vbox.addStretch(1)
         vbox.addLayout(numBox)
         vbox.addLayout(revBox)
         vbox.addLayout(foodBox)
+        vbox.addLayout(editBox)
         vbox.addLayout(btnBox)
         vbox.addStretch(1)
         window.setLayout(vbox)
@@ -82,19 +113,167 @@ class Example():
         window.show()
         sys.exit(app.exec_())
 
+    def initGPIO(self):
+        self.FREQUENCY = 50
+        self.SENSORS = [19, 21, 23, 29, 31, 33, 35, 37]
+        self.FEEDERS = [18, 38, 24, 26, 32, 36, 22, 40]
+        self.pwm = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.passes = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.currentRevolutions = [1, 1, 1, 1, 1, 1, 1, 1]
+        self.revolutionsPerFood = [10, 10, 10, 10, 10, 10, 10, 10]
+        self.FOODPOSITIONS = [11.75, 10.85, 9.6,
+                              8.4, 7.5, 6.5, 5.5, 4.5, 3.5, 2.5, 1.5]
+        self.csvStart = time.time() - 601
+        self.servoQueue = []
+        self.foodQueue = []
+        self.email = False
+        self.move = True
+        self.update = True
+        calls = [self.sensor1, self.sensor2, self.sensor3,
+                 self.sensor4, self.sensor5, self.sensor6,
+                 self.sensor7, self.sensor8]
+
+        # for i in range(len(self.SENSORS)):
+        #     GPIO.setup(self.SENSORS[i], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        #     GPIO.add_event_detect(self.SENSORS[i], GPIO.FALLING,
+        #                           callback=calls[i], bouncetime=20)
+
+        # for i in range(len(self.FEEDERS)):
+        #     GPIO.setup(self.FEEDERS[i], GPIO.OUT)
+        #     self.pwm[i] = GPIO.PWM(self.FEEDERS[i], self.FREQUENCY)
+        #     self.pwm[i].start(self.FOODPOSITIONS[0])
+        #     time.sleep(1)
+        #     self.pwm[i].ChangeDutyCycle(0)
+
+        print("Done Initializing")
+
+    def textChanged(self, value):
+        if(value != ""):
+            self.revolutionsPerFood[self.cageNum - 1] = int(value)
+            self.foodRevolutionsText.setText(
+                "Food: " + str(self.revolutionsPerFood[self.cageNum - 1]))
+
+    def sensor1(self, channel):
+
+        self.passes[0] = self.passes[0] + 1
+        # print "1"
+
+    def sensor2(self, channel):
+        self.passes[1] = self.passes[1] + 1
+        # print str(self.passes[1])
+
+    def sensor3(self, channel):
+        self.passes[2] = self.passes[2] + 1
+        # print "3"
+
+    def sensor4(self, channel):
+        self.passes[3] = self.passes[3] + 1
+        # print "4"
+
+    def sensor5(self, channel):
+        self.passes[4] = self.passes[4] + 1
+        # print "5"
+
+    def sensor6(self, channel):
+        self.passes[5] = self.passes[5] + 1
+        # print "6"
+
+    def sensor7(self, channel):
+        self.passes[6] = self.passes[6] + 1
+        # print "7"
+
+    def sensor8(self, channel):
+        self.passes[7] = self.passes[7] + 1
+        # print "8"
+
     def rightButton(self):
         if(self.cageNum < 8):
             self.cageNum += 1
         self.cageNumText.setText("Cage number: " + str(self.cageNum))
         self.revolutionsText.setText("Revolutions: " + str(self.cageNum))
-        self.foodRevolutionsText.setText("Food: " + str(self.cageNum))
+        self.foodRevolutionsEdit.setText(
+            str(self.revolutionsPerFood[self.cageNum - 1]))
 
     def leftButton(self):
         if(self.cageNum > 1):
             self.cageNum -= 1
         self.cageNumText.setText("Cage number: " + str(self.cageNum))
         self.revolutionsText.setText("Revolutions: " + str(self.cageNum))
-        self.foodRevolutionsText.setText("Food: " + str(self.cageNum))
+        self.foodRevolutionsEdit.setText(
+            str(self.revolutionsPerFood[self.cageNum - 1]))
+
+
+class emailThread(Thread):
+    def __init__(self, cageNumber):
+        Thread.__init__(self)
+        self.daemon = True
+        self.cage = cageNumber
+
+    def run(self):
+        server = smtplib.SMTP('smtp.gmail.com')
+        server.starttls()
+        server.login("researchcages@gmail.com", "This is the password.")
+        msg = "Cage " + str(self.cage) + " has triggered the food dispenser."
+        server.sendmail("researchcages@gmail.com", "akarnes1@asu.edu", msg)
+        server.quit()
+        print("Email sent")
+
+
+class servoThread(Thread):
+    def __init__(self, servo, food):
+        Thread.__init__(self)
+        self.daemon = True
+        self.servo = servo
+        self.food = food
+        print("Food pos: " + str(self.food))
+
+    def run(self):
+        global move
+        print("Servo Start")
+        self.servo.start(self.food)
+        time.sleep(1.5)
+        self.servo.ChangeDutyCycle(11.75)
+        time.sleep(1.5)
+        self.servo.start(self.food)
+        time.sleep(1.5)
+        self.servo.ChangeDutyCycle(11.75)
+        time.sleep(1.5)
+        self.servo.ChangeDutyCycle(0)
+        print("Servo Done")
+        move = True
+
+
+class csvThread(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+        self.daemon = True
+
+    def run(self):
+        global index, currentRevs, dispenseRevs
+        with open('log.csv', 'a') as csvfile:
+            csvwrite = csv.writer(csvfile, delimiter=',')
+            for index, item in enumerate(self.passes):
+                csvwrite.writerow([index + 1] + [currentRevs[index]] + [dispenseRevs[index]] + [
+                                  food[index]] + [time.asctime(time.localtime(time.time()))])
+        print("CSV Done")
+
+
+class saveThread(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+        self.daemon = True
+
+    def run(self):
+        global revsPerFood, emailAddress
+        data = loadJSONObject("startSettings.json")
+        data.setString("emailAddress", emailAddress)
+        jsonRevs = data.getJSONArray("revsPerFood")
+        for i in range(0, 8):
+            jsonRevs.setString(i, revsPerFood[i])
+
+        # data.setJSONObject("settings",data)
+        saveJSONObject(data, "startSettings.json")
+        print("Saved Settings")
 
 
 if __name__ == '__main__':
