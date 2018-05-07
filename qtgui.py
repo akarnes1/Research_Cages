@@ -155,6 +155,43 @@ class Example():
             self.foodRevolutionsText.setText(
                 "Food: " + str(self.revolutionsPerFood[self.cageNum - 1]))
 
+    def update(self):
+        for index, item in enumerate(passes):
+            if(item >= 6):
+                self.currentRevolutions[index] = self.currentRevolutions[index] + 1
+                self.passes[index] = self.passes[index] - 6
+            if update == True:
+                update = False
+                thread = updateThread(index, self.currentRevolutions[index])
+                thread.start()
+            print("ID: " + str(index + 1) + " Revs: " +
+                  str(self.currentRevolutions[index]) + " Dispense: " +
+                  str(self.revolutionsPerFood[index]))
+            if (self.currentRevolutions[index] % self.revolutionsPerFood[index] == 0):
+                servoQueue.append(self.pwm[index])
+                foodIndex = self.currentRevolutions[index] / \
+                    self.revolutionsPerFood[index]
+                foodQueue.append(self.food[foodIndex])
+                email = index
+
+        if len(servoQueue) > 0 and move == True:
+            move = False
+            thread = servoThread(servoQueue.pop(), foodQueue.pop())
+            thread.start()
+
+        if email != 0:
+            thread = emailThread(email)
+            thread.start()
+            email = 0
+
+        if(csvStart + 600 < time.time()):
+            csvStart = time.time()
+            print("CSV Thread")
+            thread = csvThread()
+            thread.start()
+
+        self.update
+
     def sensor1(self, channel):
 
         self.passes[0] = self.passes[0] + 1
@@ -251,11 +288,11 @@ class csvThread(Thread):
         self.daemon = True
 
     def run(self):
-        global index, currentRevs, dispenseRevs
+        global index, self.currentRevolutions, self.revolutionsPerFood
         with open('log.csv', 'a') as csvfile:
             csvwrite = csv.writer(csvfile, delimiter=',')
             for index, item in enumerate(self.passes):
-                csvwrite.writerow([index + 1] + [currentRevs[index]] + [dispenseRevs[index]] + [
+                csvwrite.writerow([index + 1] + [self.currentRevolutions[index]] + [self.revolutionsPerFood[index]] + [
                                   food[index]] + [time.asctime(time.localtime(time.time()))])
         print("CSV Done")
 
