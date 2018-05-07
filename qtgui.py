@@ -129,21 +129,21 @@ class Example():
         self.email = False
         self.move = True
         self.update = True
-        calls = [self.sensor1, self.sensor2, self.sensor3,
+        self.calls = [self.sensor1, self.sensor2, self.sensor3,
                  self.sensor4, self.sensor5, self.sensor6,
                  self.sensor7, self.sensor8]
 
-        # for i in range(len(self.SENSORS)):
-        #     GPIO.setup(self.SENSORS[i], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        #     GPIO.add_event_detect(self.SENSORS[i], GPIO.FALLING,
-        #                           callback=calls[i], bouncetime=20)
+         for i in range(len(self.SENSORS)):
+             GPIO.setup(self.SENSORS[i], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+             GPIO.add_event_detect(self.SENSORS[i], GPIO.FALLING,
+                                   callback=self.calls[i], bouncetime=20)
 
-        # for i in range(len(self.FEEDERS)):
-        #     GPIO.setup(self.FEEDERS[i], GPIO.OUT)
-        #     self.pwm[i] = GPIO.PWM(self.FEEDERS[i], self.FREQUENCY)
-        #     self.pwm[i].start(self.FOODPOSITIONS[0])
-        #     time.sleep(1)
-        #     self.pwm[i].ChangeDutyCycle(0)
+         for i in range(len(self.FEEDERS)):
+             GPIO.setup(self.FEEDERS[i], GPIO.OUT)
+             self.pwm[i] = GPIO.PWM(self.FEEDERS[i], self.FREQUENCY)
+             self.pwm[i].start(self.FOODPOSITIONS[0])
+             time.sleep(1)
+             self.pwm[i].ChangeDutyCycle(0)
 
         print("Done Initializing")
 
