@@ -229,7 +229,7 @@ class Example():
         if(self.cageNum < 8):
             self.cageNum += 1
         self.cageNumText.setText("Cage number: " + str(self.cageNum))
-        self.revolutionsText.setText("Revolutions: " + str(self.cageNum))
+        self.revolutionsText.setText("Revolutions: " + str(self.passes[self.cageNum]))
         self.foodRevolutionsEdit.setText(
             str(self.revolutionsPerFood[self.cageNum - 1]))
 
@@ -237,7 +237,7 @@ class Example():
         if(self.cageNum > 1):
             self.cageNum -= 1
         self.cageNumText.setText("Cage number: " + str(self.cageNum))
-        self.revolutionsText.setText("Revolutions: " + str(self.cageNum))
+        self.revolutionsText.setText("Revolutions: " + str(self.passes[self.cageNum]))
         self.foodRevolutionsEdit.setText(
             str(self.revolutionsPerFood[self.cageNum - 1]))
 
