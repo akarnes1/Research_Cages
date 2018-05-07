@@ -21,6 +21,7 @@ class Example():
         self.initSettings()
         self.initGPIO()
         self.initGUI()
+        self.updateWindow()
 
     def initSettings(self):
         # The code to load in the defined settings.
@@ -154,43 +155,50 @@ class Example():
             self.revolutionsPerFood[self.cageNum - 1] = int(value)
             self.foodRevolutionsText.setText(
                 "Food: " + str(self.revolutionsPerFood[self.cageNum - 1]))
+        
+        self.cageNumText.setText("Cage number: " + str(self.cageNum))
+        self.revolutionsText.setText(
+            "Revolutions: " + str(self.currentRevolutions[self.cageNum - 1]))
+        self.foodRevolutionsEdit.setText(
+            str(self.revolutionsPerFood[self.cageNum - 1]))
 
-    def update(self):
-        for index, item in enumerate(passes):
+    def updateWindow(self):
+        for index, item in enumerate(self.passes):
             if(item >= 6):
                 self.currentRevolutions[index] = self.currentRevolutions[index] + 1
                 self.passes[index] = self.passes[index] - 6
-            if update == True:
-                update = False
-                thread = updateThread(index, self.currentRevolutions[index])
-                thread.start()
+            if self.update == True:
+                self.update = False
+                # thread = updateThread(index, self.currentRevolutions[index])
+                # thread.start()
             print("ID: " + str(index + 1) + " Revs: " +
                   str(self.currentRevolutions[index]) + " Dispense: " +
                   str(self.revolutionsPerFood[index]))
             if (self.currentRevolutions[index] % self.revolutionsPerFood[index] == 0):
-                servoQueue.append(self.pwm[index])
+                self.servoQueue.append(self.pwm[index])
                 foodIndex = self.currentRevolutions[index] / \
                     self.revolutionsPerFood[index]
-                foodQueue.append(self.food[foodIndex])
+                self.foodQueue.append(self.FOODPOSITIONS[foodIndex])
                 email = index
 
-        if len(servoQueue) > 0 and move == True:
-            move = False
-            thread = servoThread(servoQueue.pop(), foodQueue.pop())
-            thread.start()
+        if len(self.servoQueue) > 0 and self.move == True:
+            self.move = False
+            # thread = servoThread(servoQueue.pop(), foodQueue.pop())
+            # thread.start()
 
         if email != 0:
-            thread = emailThread(email)
-            thread.start()
+            # thread = emailThread(email)
+            # thread.start()
             email = 0
 
-        if(csvStart + 600 < time.time()):
-            csvStart = time.time()
+        if(self.csvStart + 600 < time.time()):
+            self.csvStart = time.time()
             print("CSV Thread")
-            thread = csvThread()
-            thread.start()
+            # thread = csvThread()
+            # thread.start()
 
-        self.update
+        self.textChanged
+        self.updateWindow
 
     def sensor1(self, channel):
 
@@ -229,7 +237,8 @@ class Example():
         if(self.cageNum < 8):
             self.cageNum += 1
         self.cageNumText.setText("Cage number: " + str(self.cageNum))
-        self.revolutionsText.setText("Revolutions: " + str(self.passes[self.cageNum]))
+        self.revolutionsText.setText(
+            "Revolutions: " + str(self.passes[self.cageNum - 1]))
         self.foodRevolutionsEdit.setText(
             str(self.revolutionsPerFood[self.cageNum - 1]))
 
@@ -237,7 +246,8 @@ class Example():
         if(self.cageNum > 1):
             self.cageNum -= 1
         self.cageNumText.setText("Cage number: " + str(self.cageNum))
-        self.revolutionsText.setText("Revolutions: " + str(self.passes[self.cageNum]))
+        self.revolutionsText.setText(
+            "Revolutions: " + str(self.passes[self.cageNum - 1]))
         self.foodRevolutionsEdit.setText(
             str(self.revolutionsPerFood[self.cageNum - 1]))
 
