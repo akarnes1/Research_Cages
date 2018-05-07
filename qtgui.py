@@ -114,6 +114,8 @@ class Example():
         sys.exit(app.exec_())
 
     def initGPIO(self):
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setwarnings(False)
         self.FREQUENCY = 50
         self.SENSORS = [19, 21, 23, 29, 31, 33, 35, 37]
         self.FEEDERS = [18, 38, 24, 26, 32, 36, 22, 40]
