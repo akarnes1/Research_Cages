@@ -267,7 +267,6 @@ class servoThread(Thread):
         print("Food pos: " + str(self.food))
 
     def run(self):
-        global move
         print("Servo Start")
         self.servo.start(self.food)
         time.sleep(1.5)
@@ -288,7 +287,6 @@ class csvThread(Thread):
         self.daemon = True
 
     def run(self):
-        global index, self.currentRevolutions, self.revolutionsPerFood
         with open('log.csv', 'a') as csvfile:
             csvwrite = csv.writer(csvfile, delimiter=',')
             for index, item in enumerate(self.passes):
@@ -303,7 +301,6 @@ class saveThread(Thread):
         self.daemon = True
 
     def run(self):
-        global revsPerFood, emailAddress
         data = loadJSONObject("startSettings.json")
         data.setString("emailAddress", emailAddress)
         jsonRevs = data.getJSONArray("revsPerFood")
