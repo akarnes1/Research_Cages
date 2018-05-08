@@ -198,7 +198,7 @@ class Example():
             #     print("CSV Thread")
                 # thread = csvThread()
                 # thread.start()
-
+            print("Update Window values")
             self.textChanged
         finally:
             QTimer.singleShot(200,self.updateWindow)
