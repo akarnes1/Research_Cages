@@ -35,7 +35,7 @@ class Example():
     def initGUI(self):
         self.cageNum = 1
         self.timer = QTimer()
-        self.timer.timeout.connect(self.updateWindow)
+        self.timer.timeout.connect(updateWindow())
         self.timer.start(200)
         app = QApplication(sys.argv)
         font = QFont("Times", 48)
