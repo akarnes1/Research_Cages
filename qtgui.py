@@ -39,6 +39,7 @@ class Example():
         self.timer.setInterval(200)
         self.timer.start()
         app = QApplication(sys.argv)
+        app.setAttribute(Qt.WA_DeleteOnClose))
         font = QFont("Times", 48)
         window = QWidget()
         window.setGeometry(30, 30, 720, 640)
