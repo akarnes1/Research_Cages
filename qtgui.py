@@ -19,9 +19,13 @@ class Example():
 
     def __init__(self):
         self.initSettings()
+        print("Settings Imported")
         self.initGPIO()
+        print("GPIO Started")
         self.initGUI()
+        print("GUI Shown")
         self.updateWindow()
+        print("Update Called")
 
     def initSettings(self):
         # The code to load in the defined settings.
