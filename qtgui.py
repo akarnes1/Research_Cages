@@ -36,7 +36,8 @@ class Example():
         self.cageNum = 1
         self.timer = QTimer()
         self.timer.timeout.connect(self.updateWindow)
-        self.timer.start(200)
+        self.timer.setInterval(200)
+        self.timer.start()
         app = QApplication(sys.argv)
         font = QFont("Times", 48)
         window = QWidget()
