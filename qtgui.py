@@ -34,6 +34,9 @@ class Example():
 
     def initGUI(self):
         self.cageNum = 1
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.updateWindow)
+        self.timer.start(200)
         app = QApplication(sys.argv)
         font = QFont("Times", 48)
         window = QWidget()
@@ -168,46 +171,40 @@ class Example():
             str(self.revolutionsPerFood[self.cageNum - 1]))
 
     def updateWindow(self):
-        try:
-            for index, item in enumerate(self.passes):
-                if(item >= 6):
-                    self.currentRevolutions[index] = self.currentRevolutions[index] + 1
-                    item = item - 6
-                if self.update == True:
-                    self.update = False
-                    # thread = updateThread(index, self.currentRevolutions[index])
-                    # thread.start()
-                print("ID: " + str(index + 1) + " Revs: " +
-                      str(self.currentRevolutions[index]) + " Dispense: " +
-                      str(self.revolutionsPerFood[index]))
-                if (self.currentRevolutions[index] % self.revolutionsPerFood[index] == 0):
-                    self.servoQueue.append(self.pwm[index])
-                    foodIndex = self.currentRevolutions[index] / \
-                        self.revolutionsPerFood[index]
-                    self.foodQueue.append(self.FOODPOSITIONS[foodIndex])
-                    # email = index
-
-            # if len(self.servoQueue) > 0 and self.move == True:
-            #     self.move = False
-            #     # thread = servoThread(servoQueue.pop(), foodQueue.pop())
-            #     # thread.start()
-
-            # if email != 0:
-            #     # thread = emailThread(email)
-            #     # thread.start()
-            #     email = 0
-
-            # if(self.csvStart + 600 < time.time()):
-            #     self.csvStart = time.time()
-            #     print("CSV Thread")
-                # thread = csvThread()
+        for index, item in enumerate(self.passes):
+            if(item >= 6):
+                self.currentRevolutions[index] = self.currentRevolutions[index] + 1
+                item = item - 6
+            if self.update == True:
+                self.update = False
+                # thread = updateThread(index, self.currentRevolutions[index])
                 # thread.start()
-            print("Update Window values")
-            self.textChanged
-        finally:
-            QTimer.singleShot(200,self.updateWindow)
-
-    def     sensor1(self, channel):
+            print("ID: " + str(index + 1) + " Revs: " +
+                  str(self.currentRevolutions[index]) + " Dispense: " +
+                  str(self.revolutionsPerFood[index]))
+            if (self.currentRevolutions[index] % self.revolutionsPerFood[index] == 0):
+                self.servoQueue.append(self.pwm[index])
+                foodIndex = self.currentRevolutions[index] / \
+                    self.revolutionsPerFood[index]
+                self.foodQueue.append(self.FOODPOSITIONS[foodIndex])
+                # email = index
+        # if len(self.servoQueue) > 0 and self.move == True:
+        #     self.move = False
+        #     # thread = servoThread(servoQueue.pop(), foodQueue.pop())
+        #     # thread.start()
+        # if email != 0:
+        #     # thread = emailThread(email)
+        #     # thread.start()
+        #     email = 0
+        # if(self.csvStart + 600 < time.time()):
+        #     self.csvStart = time.time()
+        #     print("CSV Thread")
+            # thread = csvThread()
+            # thread.start()
+        print("Update Window values")
+        self.textChanged
+    
+    def    sensor1(self, channel):
 
         self.passes[0] = self.passes[0] + 1
         # print "1"
