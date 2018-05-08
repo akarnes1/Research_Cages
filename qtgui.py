@@ -7,7 +7,7 @@ import sys
 import time
 from threading import Thread
 
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, QTimer
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget, QLineEdit)
@@ -43,7 +43,8 @@ class Example():
         # The Revolutions text
         self.revolutionsText = QLabel(window)
         self.revolutionsText.setFont(font)
-        self.revolutionsText.setText("Revolutions: " + str(self.cageNum))
+        self.revolutionsText.setText(
+            "Revolutions: " + str(self.currentRevolutions[self.cageNum - 1]))
 
         # The food dispense revs text
         self.foodRevolutionsText = QLabel(window)
@@ -155,7 +156,7 @@ class Example():
             self.revolutionsPerFood[self.cageNum - 1] = int(value)
             self.foodRevolutionsText.setText(
                 "Food: " + str(self.revolutionsPerFood[self.cageNum - 1]))
-        
+
         self.cageNumText.setText("Cage number: " + str(self.cageNum))
         self.revolutionsText.setText(
             "Revolutions: " + str(self.currentRevolutions[self.cageNum - 1]))
@@ -163,44 +164,46 @@ class Example():
             str(self.revolutionsPerFood[self.cageNum - 1]))
 
     def updateWindow(self):
-        for index, item in enumerate(self.passes):
-            if(item >= 6):
-                self.currentRevolutions[index] = self.currentRevolutions[index] + 1
-                self.passes[index] = self.passes[index] - 6
-            if self.update == True:
-                self.update = False
-                # thread = updateThread(index, self.currentRevolutions[index])
+        try:
+            for index, item in enumerate(self.passes):
+                if(item >= 6):
+                    self.currentRevolutions[index] = self.currentRevolutions[index] + 1
+                    item = item - 6
+                if self.update == True:
+                    self.update = False
+                    # thread = updateThread(index, self.currentRevolutions[index])
+                    # thread.start()
+                print("ID: " + str(index + 1) + " Revs: " +
+                      str(self.currentRevolutions[index]) + " Dispense: " +
+                      str(self.revolutionsPerFood[index]))
+                if (self.currentRevolutions[index] % self.revolutionsPerFood[index] == 0):
+                    self.servoQueue.append(self.pwm[index])
+                    foodIndex = self.currentRevolutions[index] / \
+                        self.revolutionsPerFood[index]
+                    self.foodQueue.append(self.FOODPOSITIONS[foodIndex])
+                    # email = index
+
+            # if len(self.servoQueue) > 0 and self.move == True:
+            #     self.move = False
+            #     # thread = servoThread(servoQueue.pop(), foodQueue.pop())
+            #     # thread.start()
+
+            # if email != 0:
+            #     # thread = emailThread(email)
+            #     # thread.start()
+            #     email = 0
+
+            # if(self.csvStart + 600 < time.time()):
+            #     self.csvStart = time.time()
+            #     print("CSV Thread")
+                # thread = csvThread()
                 # thread.start()
-            print("ID: " + str(index + 1) + " Revs: " +
-                  str(self.currentRevolutions[index]) + " Dispense: " +
-                  str(self.revolutionsPerFood[index]))
-            if (self.currentRevolutions[index] % self.revolutionsPerFood[index] == 0):
-                self.servoQueue.append(self.pwm[index])
-                foodIndex = self.currentRevolutions[index] / \
-                    self.revolutionsPerFood[index]
-                self.foodQueue.append(self.FOODPOSITIONS[foodIndex])
-                email = index
 
-        if len(self.servoQueue) > 0 and self.move == True:
-            self.move = False
-            # thread = servoThread(servoQueue.pop(), foodQueue.pop())
-            # thread.start()
+            self.textChanged
+        finally:
+            QTimer.singleShot(200,self.updateWindow)
 
-        if email != 0:
-            # thread = emailThread(email)
-            # thread.start()
-            email = 0
-
-        if(self.csvStart + 600 < time.time()):
-            self.csvStart = time.time()
-            print("CSV Thread")
-            # thread = csvThread()
-            # thread.start()
-
-        self.textChanged
-        self.updateWindow
-
-    def sensor1(self, channel):
+    def     sensor1(self, channel):
 
         self.passes[0] = self.passes[0] + 1
         # print "1"
@@ -288,7 +291,6 @@ class servoThread(Thread):
         time.sleep(1.5)
         self.servo.ChangeDutyCycle(0)
         print("Servo Done")
-        move = True
 
 
 class csvThread(Thread):
@@ -299,7 +301,7 @@ class csvThread(Thread):
     def run(self):
         with open('log.csv', 'a') as csvfile:
             csvwrite = csv.writer(csvfile, delimiter=',')
-            for index, item in enumerate(self.passes):
+            for index in enumerate(self.passes):
                 csvwrite.writerow([index + 1] + [self.currentRevolutions[index]] + [self.revolutionsPerFood[index]] + [
                                   food[index]] + [time.asctime(time.localtime(time.time()))])
         print("CSV Done")
