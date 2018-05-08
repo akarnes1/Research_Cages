@@ -22,10 +22,10 @@ class Example():
         print("Settings Imported")
         self.initGPIO()
         print("GPIO Started")
-        self.initGUI()
-        print("GUI Shown")
         self.updateWindow()
         print("Update Called")
+        self.initGUI()
+        print("GUI Shown")
 
     def initSettings(self):
         # The code to load in the defined settings.
