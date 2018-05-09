@@ -120,7 +120,7 @@ class csvThread(Thread):
         global index, currentRevs, dispenseRevs
         with open('log.csv', 'a') as csvfile:
             csvwrite = csv.writer(csvfile, delimiter=',')
-            for index in enumerate(passes):
+            for index, item in enumerate(passes):
                 csvwrite.writerow([index + 1] + [currentRevs[index]] + [dispenseRevs[index]] + 
                                   [food[index]] + [time.asctime(time.localtime(time.time()))])
         print("CSV Done")
@@ -155,7 +155,7 @@ while 1:
             if (currentRevs[i] % dispenseRevs[i] == 0):
                 servoQueue.append(pwm[i])
                 foodIndex = int(currentRevs[i] / dispenseRevs[i])
-                foodQueue.append(food[food])
+                foodQueue.append(food[foodIndex])
                 email = i
 
         if len(servoQueue) > 0 and move == True:
