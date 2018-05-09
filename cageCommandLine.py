@@ -32,49 +32,42 @@ move = True
 def sensor1(channel):
     global passes
     passes[0] = passes[0] + 1
-    # print "1"
 
 
 def sensor2(channel):
     global passes
     passes[1] = passes[1] + 1
-    # print str(passes[1])
+    print(str(passes[1]))
 
 
 def sensor3(channel):
     global passes
     passes[2] = passes[2] + 1
-    # print "3"
 
 
 def sensor4(channel):
     global passes
     passes[3] = passes[3] + 1
-    # print "4"
 
 
 def sensor5(channel):
     global passes
     passes[4] = passes[4] + 1
-    # print "5"
 
 
 def sensor6(channel):
     global passes
     passes[5] = passes[5] + 1
-    # print "6"
 
 
 def sensor7(channel):
     global passes
     passes[6] = passes[6] + 1
-    # print "7"
 
 
 def sensor8(channel):
     global passes
     passes[7] = passes[7] + 1
-    # print "8"
 
 
 class emailThread(Thread):
@@ -127,8 +120,8 @@ class csvThread(Thread):
         with open('log.csv', 'a') as csvfile:
             csvwrite = csv.writer(csvfile, delimiter=',')
             for index in enumerate(passes):
-                csvwrite.writerow([index + 1] + [currentRevs[index]] + [dispenseRevs[index]] + [
-                                  food[index]] + [time.asctime(time.localtime(time.time()))])
+                csvwrite.writerow([index + 1] + [currentRevs[index]] + [dispenseRevs[index]] + 
+                                  [food[index]] + [time.asctime(time.localtime(time.time()))])
         print("CSV Done")
 
 
