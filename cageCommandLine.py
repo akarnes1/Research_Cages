@@ -27,8 +27,6 @@ foodQueue = []
 
 email = False
 move = True
-update = True
-
 
 def sensor1(channel):
     global passes
@@ -126,7 +124,7 @@ class csvThread(Thread):
         global index, currentRevs, dispenseRevs
         with open('log.csv', 'a') as csvfile:
             csvwrite = csv.writer(csvfile, delimiter=',')
-            for index, item in enumerate(passes):
+            for index in enumerate(passes):
                 csvwrite.writerow([index + 1] + [currentRevs[index]] + [dispenseRevs[index]] + [
                                   food[index]] + [time.asctime(time.localtime(time.time()))])
         print("CSV Done")
@@ -158,7 +156,7 @@ while 1:
                 str(dispenseRevs[index]))
             if (currentRevs[index] % dispenseRevs[index] == 0):
                 servoQueue.append(pwm[index])
-                foodIndex = currentRevs[index] / dispenseRevs[index]
+                foodIndex = int(currentRevs[index] / dispenseRevs[index])
                 foodQueue.append(food[foodIndex])
                 email = index
 
