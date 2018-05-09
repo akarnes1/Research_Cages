@@ -28,52 +28,54 @@ foodQueue = []
 email = False
 move = True
 
+
 def sensor1(channel):
     global passes
     passes[0] = passes[0] + 1
-    #print "1"
+    # print "1"
 
 
 def sensor2(channel):
     global passes
     passes[1] = passes[1] + 1
-    #print str(passes[1])
+    # print str(passes[1])
 
 
 def sensor3(channel):
     global passes
     passes[2] = passes[2] + 1
-    #print "3"
+    # print "3"
 
 
 def sensor4(channel):
     global passes
     passes[3] = passes[3] + 1
-    #print "4"
+    # print "4"
 
 
 def sensor5(channel):
     global passes
     passes[4] = passes[4] + 1
-    #print "5"
+    # print "5"
 
 
 def sensor6(channel):
     global passes
     passes[5] = passes[5] + 1
-    #print "6"
+    # print "6"
 
 
 def sensor7(channel):
     global passes
     passes[6] = passes[6] + 1
-    #print "7"
+    # print "7"
 
 
 def sensor8(channel):
     global passes
     passes[7] = passes[7] + 1
-    #print "8"
+    # print "8"
+
 
 class emailThread(Thread):
     def __init__(self, cageNumber):
@@ -130,7 +132,8 @@ class csvThread(Thread):
         print("CSV Done")
 
 
-calls = [sensor1, sensor2, sensor3, sensor4, sensor5, sensor6, sensor7, sensor8]
+calls = [sensor1, sensor2, sensor3, sensor4,
+         sensor5, sensor6, sensor7, sensor8]
 
 for i in range(len(sensors)):
     GPIO.setup(sensors[i], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -151,9 +154,10 @@ while 1:
         if(item >= 6):
             currentRevs[index] = currentRevs[index] + 1
             passes[index] = passes[index] - 6
-            print("ID: " + str(index + 1) + " Revs: " + \
-                str(currentRevs[index]) + " Dispense: " + \
-                str(dispenseRevs[index]))
+            print(colorama.Fore.BLUE + "ID: " + colorama.Fore.GREEN + str(index + 1) + 
+                  colorama.Fore.BLUE + " Revs: " + colorama.Fore.GREEN +
+                  str(currentRevs[index]) + colorama.Fore.BLUE + " Dispense: " + 
+                  colorama.Fore.GREEN + str(dispenseRevs[index]))
             if (currentRevs[index] % dispenseRevs[index] == 0):
                 servoQueue.append(pwm[index])
                 foodIndex = int(currentRevs[index] / dispenseRevs[index])
