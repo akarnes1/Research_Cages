@@ -25,6 +25,7 @@ servoStart = time.time()
 servoQueue = []
 foodQueue = []
 
+index = 0
 email = False
 move = True
 
@@ -143,19 +144,19 @@ print("Done Initializing")
 
 
 while 1:
-    for index, item in enumerate(passes):
+    for i, item in enumerate(passes):
         if(item >= 6):
-            currentRevs[index] = currentRevs[index] + 1
-            passes[index] = passes[index] - 6
-            print(colorama.Fore.BLUE + "ID: " + colorama.Fore.GREEN + str(index + 1) + 
+            currentRevs[i] = currentRevs[i] + 1
+            passes[i] = passes[i] - 6
+            print(colorama.Fore.BLUE + "ID: " + colorama.Fore.GREEN + str(i + 1) + 
                   colorama.Fore.BLUE + " Revs: " + colorama.Fore.GREEN +
-                  str(currentRevs[index]) + colorama.Fore.BLUE + " Dispense: " + 
-                  colorama.Fore.GREEN + str(dispenseRevs[index]))
-            if (currentRevs[index] % dispenseRevs[index] == 0):
-                servoQueue.append(pwm[index])
-                foodIndex = int(currentRevs[index] / dispenseRevs[index])
-                foodQueue.append(food[foodIndex])
-                email = index
+                  str(currentRevs[i]) + colorama.Fore.BLUE + " Dispense: " + 
+                  colorama.Fore.GREEN + str(dispenseRevs[i]))
+            if (currentRevs[i] % dispenseRevs[i] == 0):
+                servoQueue.append(pwm[i])
+                foodIndex = int(currentRevs[i] / dispenseRevs[i])
+                foodQueue.append(food[food])
+                email = i
 
         if len(servoQueue) > 0 and move == True:
             move = False
