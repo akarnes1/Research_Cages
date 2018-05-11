@@ -1,117 +1,195 @@
-# import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import csv
 import json
 import smtplib
 import sys
+import traceback
 import time
 from pprint import pprint
 from threading import Thread
 
 import colorama
 
-colorama.init(autoreset=True)
-
-# GPIO.setmode(GPIO.BOARD)
-# GPIO.setwarnings(False)
-
-PWM_FREQUENCY = 50
-FOOD = [11.75, 10.85, 9.6, 8.4, 7.5, 6.5, 5.5, 4.5, 3.5, 2.5, 1.5]
-SENSORS_GPIO_PINS = [19, 21, 23, 29, 31, 33, 35, 37]
-FEEDER_MOTOR_GPIO_PINS = [18, 38, 24, 26, 32, 36, 22, 40]
-
-pwm = [0, 0, 0, 0, 0, 0, 0, 0]
-passes = [0, 0, 0, 0, 0, 0, 0, 0]
-currentRevolutions = [1, 1, 1, 1, 1, 1, 1, 1]
-revolutionsPerFood = [10, 10, 10, 10, 10, 10, 10, 10]
-
-emailAddress = "akarnes1@asu.edu"
-
-csvStart = time.time() - 601
-servoStart = time.time()
-servoQueue = []
-foodQueue = []
-
-index = 0
-email = False
 move = True
 
 
-def sensor1(channel):
-    global passes
-    passes[0] = passes[0] + 1
+class main():
 
+    def __init__(self):
+        colorama.init(autoreset=True)
 
-def sensor2(channel):
-    global passes
-    passes[1] = passes[1] + 1
-    print(str(passes[1]))
+        # GPIO.setmode(GPIO.BOARD)
+        # GPIO.setwarnings(False)
 
+        self.PWM_FREQUENCY = 50
+        self.FOOD = [11.75, 10.85, 9.6, 8.4, 7.5, 6.5, 5.5, 4.5, 3.5, 2.5, 1.5]
+        self.SENSORS_GPIO_PINS = [19, 21, 23, 29, 31, 33, 35, 37]
+        self.FEEDER_MOTOR_GPIO_PINS = [18, 38, 24, 26, 32, 36, 22, 40]
 
-def sensor3(channel):
-    global passes
-    passes[2] = passes[2] + 1
+        self.pwm = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.passes = [0, 0, 0, 0, 0, 0, 0, 0]
+        self.currentRevolutions = [1, 1, 1, 1, 1, 1, 1, 1]
+        self.revolutionsPerFood = [10, 10, 10, 10, 10, 10, 10, 10]
 
+        self.emailAddress = "akarnes1@asu.edu"
 
-def sensor4(channel):
-    global passes
-    passes[3] = passes[3] + 1
+        self.csvStart = time.time() - 601
+        self.servoStart = time.time()
+        self.servoQueue = []
+        self.foodQueue = []
 
+        self.email = 0
 
-def sensor5(channel):
-    global passes
-    passes[4] = passes[4] + 1
+        with open('startSettings.json', 'r') as json_file:
+            settings = json.load(json_file)
 
+        self.emailAddress = settings["emailAddress"]
+        print(self.emailAddress)
 
-def sensor6(channel):
-    global passes
-    passes[5] = passes[5] + 1
+        for index, item in enumerate(settings["revsPerFood"]):
+            self.revolutionsPerFood[index] = item
+            print(self.revolutionsPerFood[index])
 
+        # self.initGPIO()
 
-def sensor7(channel):
-    global passes
-    passes[6] = passes[6] + 1
+        print("Done Initializing")
 
+        self.main()
 
-def sensor8(channel):
-    global passes
-    passes[7] = passes[7] + 1
+    def sensor1(self, channel):
+        self.passes[0] = self.passes[0] + 1
+
+    def sensor2(self, channel):
+        self.passes[1] = self.passes[1] + 1
+
+    def sensor3(self, channel):
+        self.passes[2] = self.passes[2] + 1
+
+    def sensor4(self, channel):
+        self.passes[3] = self.passes[3] + 1
+
+    def sensor5(self, channel):
+        self.passes[4] = self.passes[4] + 1
+
+    def sensor6(self, channel):
+        self.passes[5] = self.passes[5] + 1
+
+    def sensor7(self, channel):
+        self.passes[6] = self.passes[6] + 1
+
+    def sensor8(self, channel):
+        self.passes[7] = self.passes[7] + 1
+
+    def initGPIO(self):
+        self.calls = [self.sensor1, self.sensor2, self.sensor3, self.sensor4,
+                      self.sensor5, self.sensor6, self.sensor7, self.sensor8]
+
+        for i in range(len(self.SENSORS_GPIO_PINS)):
+            GPIO.setup(self.SENSORS_GPIO_PINS[i],
+                       GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            GPIO.add_event_detect(self.SENSORS_GPIO_PINS[i], GPIO.FALLING,
+                                  callback=self.calls[i], bouncetime=20)
+
+        for i in range(len(self.FEEDER_MOTOR_GPIO_PINS)):
+            GPIO.setup(self.FEEDER_MOTOR_GPIO_PINS[i], GPIO.OUT)
+            self.pwm[i] = GPIO.PWM(
+                self.FEEDER_MOTOR_GPIO_PINS[i], self.PWM_FREQUENCY)
+            self.pwm[i].start(self.FOOD[0])
+            time.sleep(1)
+            self.pwm[i].ChangeDutyCycle(0)
+
+    def main(self):
+        global move
+        try:
+            while 1:
+                for i, item in enumerate(self.passes):
+                    if(item >= 6):
+                        self.currentRevolutions[i] = self.currentRevolutions[i] + 1
+                        self.passes[i] = self.passes[i] - 6
+                        print(colorama.Fore.BLUE + "ID: " + colorama.Fore.GREEN + str(i + 1) +
+                              colorama.Fore.BLUE + " Revs: " + colorama.Fore.GREEN +
+                              str(self.currentRevolutions[i]) + colorama.Fore.BLUE + " Dispense: " +
+                              colorama.Fore.GREEN + str(self.revolutionsPerFood[i]))
+                        if (self.currentRevolutions[i] % self.revolutionsPerFood[i] == 0):
+                            self.servoQueue.append(self.pwm[i])
+                            foodIndex = int(
+                                self.currentRevolutions[i] / self.revolutionsPerFood[i])
+                            self.foodQueue.append(self.FOOD[foodIndex])
+                            self.email = i
+
+                    if len(self.servoQueue) > 0 and move == True:
+                        move = False
+                        thread = servoThread(
+                            self.servoQueue.pop(), self.foodQueue.pop(), self.FOOD)
+                        thread.start()
+
+                    if self.email != 0:
+                        thread = emailThread(self.email, self.emailAddress)
+                        thread.start()
+                        self.email = 0
+
+                    if(self.csvStart + 600 < time.time()):
+                        self.csvStart = time.time()
+                        print(colorama.Fore.GREEN + "CSV Thread")
+                        thread = csvThread(
+                            self.passes, self.currentRevolutions, self.revolutionsPerFood)
+                        thread.start()
+
+        except KeyboardInterrupt:
+            self.cleanup()
+        except Exception:
+            traceback.print_exc(file=sys.stdout)
+        sys.exit(0)
+
+    def cleanup(self):
+        for i in range(len(self.pwm)):
+            self.pwm[i].ChangeDutyCycle(self.FOOD[0])
+            time.sleep(1.5)
+            self.pwm[i].ChangeDutyCycle(0)
+            time.sleep(1.5)
+            self.pwm[i].ChangeDutyCycle(self.FOOD[0])
+            time.sleep(1.5)
+            self.pwm[i].stop()
+        
+        GPIO.cleanup()
 
 
 class emailThread(Thread):
-    def __init__(self, cageNumber):
+    def __init__(self, cageNumber, emailAddress):
         Thread.__init__(self)
         self.daemon = True
         self.cage = cageNumber
+        self.emailAddress = emailAddress
 
     def run(self):
-        global emailAddress
         server = smtplib.SMTP('smtp.gmail.com')
         server.starttls()
         server.login("researchcages@gmail.com", "This is the password.")
         msg = "Cage " + str(self.cage) + " has triggered the FOOD dispenser."
-        server.sendmail("researchcages@gmail.com", emailAddress, msg)
+        server.sendmail("researchcages@gmail.com", self.emailAddress, msg)
         server.quit()
         print("Email sent")
 
 
 class servoThread(Thread):
-    def __init__(self, servo, FOOD):
+    def __init__(self, servo, foodLocation, FOOD):
         Thread.__init__(self)
         self.daemon = True
         self.servo = servo
+        self.foodLocation = foodLocation
         self.FOOD = FOOD
-        print("Food pos: " + str(self.FOOD))
+        print("Food pos: " + str(self.foodLocation))
 
     def run(self):
         global move
         print("Servo Start")
-        self.servo.start(self.FOOD)
+        self.servo.start(self.foodLocation)
         time.sleep(1.5)
-        self.servo.ChangeDutyCycle(11.75)
+        self.servo.ChangeDutyCycle(self.FOOD[0])
         time.sleep(1.5)
-        self.servo.start(self.FOOD)
+        self.servo.start(self.foodLocation)
         time.sleep(1.5)
-        self.servo.ChangeDutyCycle(11.75)
+        self.servo.ChangeDutyCycle(self.FOOD[0])
         time.sleep(1.5)
         self.servo.ChangeDutyCycle(0)
         print("Servo Done")
@@ -119,80 +197,20 @@ class servoThread(Thread):
 
 
 class csvThread(Thread):
-    def __init__(self):
+    def __init__(self, passes, currentRevs, dispenseRevs):
         Thread.__init__(self)
         self.daemon = True
+        self.passes = passes
+        self.currentRevolutions = currentRevs
+        self.revolutionsPerFood = dispenseRevs
 
     def run(self):
-        global index, currentRevolutions, revolutionsPerFood
         with open('log.csv', 'a', newline='') as csvfile:
             csvwrite = csv.writer(csvfile, delimiter=',')
-            for index, item in enumerate(passes):
-                csvwrite.writerow([index + 1] + [currentRevolutions[index]] + [revolutionsPerFood[index]] +
+            for index, item in enumerate(self.passes):
+                csvwrite.writerow([index + 1] + [self.currentRevolutions[index]] + [self.revolutionsPerFood[index]] +
                                   [time.asctime(time.localtime(time.time()))])
         print("CSV Done")
 
-
-calls = [sensor1, sensor2, sensor3, sensor4,
-         sensor5, sensor6, sensor7, sensor8]
-
-# for i in range(len(SENSORS_GPIO_PINS)):
-#     GPIO.setup(SENSORS_GPIO_PINS[i], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-#     GPIO.add_event_detect(SENSORS_GPIO_PINS[i], GPIO.FALLING,
-#                           callback=calls[i], bouncetime=20)
-
-# for i in range(len(FEEDER_MOTOR_GPIO_PINS)):
-#     GPIO.setup(FEEDER_MOTOR_GPIO_PINS[i], GPIO.OUT)
-#     pwm[i] = GPIO.PWM(FEEDER_MOTOR_GPIO_PINS[i], PWM_FREQUENCY)
-#     pwm[i].start(FOOD[0])
-#     time.sleep(1)
-#     pwm[i].ChangeDutyCycle(0)
-
-with open('startSettings.json', 'r') as json_file:
-    settings = json.load(json_file)
-
-emailAddress = settings["emailAddress"]
-print(emailAddress)
-
-for index, item in enumerate(settings["revsPerFood"]):
-    revolutionsPerFood[index] = item
-    print(revolutionsPerFood[index])
-
-print("Done Initializing")
-
-
-while 1:
-    for i, item in enumerate(passes):
-        if(item >= 6):
-            currentRevolutions[i] = currentRevolutions[i] + 1
-            passes[i] = passes[i] - 6
-            print(colorama.Fore.BLUE + "ID: " + colorama.Fore.GREEN + str(i + 1) +
-                  colorama.Fore.BLUE + " Revs: " + colorama.Fore.GREEN +
-                  str(currentRevolutions[i]) + colorama.Fore.BLUE + " Dispense: " +
-                  colorama.Fore.GREEN + str(revolutionsPerFood[i]))
-            if (currentRevolutions[i] % revolutionsPerFood[i] == 0):
-                servoQueue.append(pwm[i])
-                foodIndex = int(currentRevolutions[i] / revolutionsPerFood[i])
-                foodQueue.append(FOOD[foodIndex])
-                email = i
-
-        if len(servoQueue) > 0 and move == True:
-            move = False
-            thread = servoThread(servoQueue.pop(), foodQueue.pop())
-            thread.start()
-
-        if email != 0:
-            thread = emailThread(email)
-            thread.start()
-            email = 0
-
-        if(csvStart + 600 < time.time()):
-            csvStart = time.time()
-            print(colorama.Fore.GREEN + "CSV Thread")
-            thread = csvThread()
-            thread.start()
-
-
-for i in range(len(pwm)):
-    pwm[i].stop()
-# GPIO.cleanup()
+if __name__ == "__main__":
+    main()
