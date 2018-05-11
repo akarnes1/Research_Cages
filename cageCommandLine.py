@@ -2,9 +2,11 @@ import time
 import smtplib
 import RPi.GPIO as GPIO
 import csv
+import json
 import sys
 from threading import Thread
 import colorama
+
 
 colorama.init(autoreset=True)
 
@@ -140,6 +142,10 @@ for i in range(len(feeders)):
     pwm[i].start(food[0])
     time.sleep(1)
     pwm[i].ChangeDutyCycle(0)
+
+with open('startSettings.json') as json
+    settings = json.loads(json)
+    
 print("Done Initializing")
 
 
