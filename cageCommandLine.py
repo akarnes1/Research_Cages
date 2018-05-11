@@ -102,7 +102,7 @@ class main():
 
     def main(self):
         global move
-        titleColor = colorama.Fore.MAGENTA
+        titleColor = colorama.Fore.CYAN
         valueColor = colorama.Fore.GREEN
         try:
             while 1:
