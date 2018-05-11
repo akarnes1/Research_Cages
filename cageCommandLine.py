@@ -26,8 +26,7 @@ class main():
         self.PWM_FREQUENCY = 50
         self.FOOD = [11.75, 10.85, 9.6, 8.4, 7.5, 6.5, 5.5, 4.5, 3.5, 2.5, 1.5]
         self.SENSORS_GPIO_PINS = [19, 21, 23, 29, 31, 33, 35, 37]
-        self.FEEDER_MOTOR_GPIO_PINS = [18, 38, 24, 26, 32, 36, 22, 40]
-
+        self.FEEDER_MOTOR_GPIO_PINS = [40,38,36,32,26,24,22,18]
         self.pwm = [0, 0, 0, 0, 0, 0, 0, 0]
         self.passes = [0, 0, 0, 0, 0, 0, 0, 0]
         self.currentRevolutions = [1, 1, 1, 1, 1, 1, 1, 1]
