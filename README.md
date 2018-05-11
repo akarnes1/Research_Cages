@@ -30,7 +30,7 @@ Start running the files in order.
 
 1. Double Click and "execute in terminal" the startup.sh
 
-That should open a GUI and you should be good to go from there as long as everything is connected correctly.
+That should open a Terminal and you should be good to go from there as long as everything is connected correctly.
 
 Quick Start: Troubleshooting
 -----------------------------
