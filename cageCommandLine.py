@@ -125,11 +125,11 @@ class csvThread(Thread):
 
     def run(self):
         global index, currentRevolutions, revolutionsPerFood
-        with open('log.csv', 'a') as csvfile:
+        with open('log.csv', 'a', newline='') as csvfile:
             csvwrite = csv.writer(csvfile, delimiter=',')
             for index, item in enumerate(passes):
-                csvwrite.writerow([index + 1] + [currentRevolutions[index]] + [revolutionsPerFood[index]] + 
-                                  [FOOD[index]] + [time.asctime(time.localtime(time.time()))])
+                csvwrite.writerow([index + 1] + [currentRevolutions[index]] + [revolutionsPerFood[index]] +
+                                  [time.asctime(time.localtime(time.time()))])
         print("CSV Done")
 
 
@@ -166,9 +166,9 @@ while 1:
         if(item >= 6):
             currentRevolutions[i] = currentRevolutions[i] + 1
             passes[i] = passes[i] - 6
-            print(colorama.Fore.BLUE + "ID: " + colorama.Fore.GREEN + str(i + 1) + 
+            print(colorama.Fore.BLUE + "ID: " + colorama.Fore.GREEN + str(i + 1) +
                   colorama.Fore.BLUE + " Revs: " + colorama.Fore.GREEN +
-                  str(currentRevolutions[i]) + colorama.Fore.BLUE + " Dispense: " + 
+                  str(currentRevolutions[i]) + colorama.Fore.BLUE + " Dispense: " +
                   colorama.Fore.GREEN + str(revolutionsPerFood[i]))
             if (currentRevolutions[i] % revolutionsPerFood[i] == 0):
                 servoQueue.append(pwm[i])
