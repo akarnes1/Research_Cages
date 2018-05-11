@@ -49,7 +49,7 @@ class main():
         print(self.emailAddress)
 
         for index, item in enumerate(settings["revsPerFood"]):
-            self.revolutionsPerFood[index] = item
+            self.revolutionsPerFood[index] = int(item)
             print(self.revolutionsPerFood[index])
 
         self.initGPIO()
@@ -204,10 +204,11 @@ class servoThread(Thread):
         global move
         print("Servo Start")
         for i in range(2):
-            self.servo.start(self.foodLocation)
-            time.sleep(1.5)
-            self.servo.ChangeDutyCycle(self.FOOD[0])
-            time.sleep(1.5)
+            if self.foodLocation < len(self.FOOD):
+                self.servo.start(self.foodLocation)
+                time.sleep(1.5)
+                self.servo.ChangeDutyCycle(self.FOOD[0])
+                time.sleep(1.5)
         self.servo.ChangeDutyCycle(0)
         print("Servo Done")
         move = True
