@@ -1,4 +1,4 @@
-# import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import csv
 import json
 import smtplib
@@ -20,8 +20,8 @@ class main():
     def __init__(self):
         colorama.init(autoreset=True)
 
-        # GPIO.setmode(GPIO.BOARD)
-        # GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setwarnings(False)
 
         self.PWM_FREQUENCY = 50
         self.FOOD = [11.75, 10.85, 9.6, 8.4, 7.5, 6.5, 5.5, 4.5, 3.5, 2.5, 1.5]
@@ -52,7 +52,7 @@ class main():
             self.revolutionsPerFood[index] = item
             print(self.revolutionsPerFood[index])
 
-        # self.initGPIO()
+        self.initGPIO()
 
         print("Done Initializing")
 
@@ -203,14 +203,11 @@ class servoThread(Thread):
     def run(self):
         global move
         print("Servo Start")
-        self.servo.start(self.foodLocation)
-        time.sleep(1.5)
-        self.servo.ChangeDutyCycle(self.FOOD[0])
-        time.sleep(1.5)
-        self.servo.start(self.foodLocation)
-        time.sleep(1.5)
-        self.servo.ChangeDutyCycle(self.FOOD[0])
-        time.sleep(1.5)
+        for i in range(2):
+            self.servo.start(self.foodLocation)
+            time.sleep(1.5)
+            self.servo.ChangeDutyCycle(self.FOOD[0])
+            time.sleep(1.5)
         self.servo.ChangeDutyCycle(0)
         print("Servo Done")
         move = True
