@@ -102,16 +102,18 @@ class main():
 
     def main(self):
         global move
+        titleColor = colorama.Fore.MAGENTA
+        valueColor = colorama.Fore.GREEN
         try:
             while 1:
                 for i, item in enumerate(self.passes):
                     if(item >= 6):
                         self.currentRevolutions[i] = self.currentRevolutions[i] + 1
                         self.passes[i] = self.passes[i] - 6
-                        print(colorama.Fore.BLUE + "ID: " + colorama.Fore.GREEN + str(i + 1) +
-                              colorama.Fore.BLUE + " Revs: " + colorama.Fore.GREEN +
-                              str(self.currentRevolutions[i]) + colorama.Fore.BLUE + " Dispense: " +
-                              colorama.Fore.GREEN + str(self.revolutionsPerFood[i]))
+                        print(titleColor + "ID: " + valueColor + str(i + 1) +
+                              titleColor + " Revs: " + valueColor +
+                              str(self.currentRevolutions[i]) + titleColor + " Dispense: " +
+                              valueColor + str(self.revolutionsPerFood[i]))
                         if (self.currentRevolutions[i] % self.revolutionsPerFood[i] == 0):
                             self.servoQueue.append(self.pwm[i])
                             foodIndex = int(
@@ -132,7 +134,7 @@ class main():
 
                     if(self.csvStart + 600 < time.time()):
                         self.csvStart = time.time()
-                        print(colorama.Fore.GREEN + "CSV Thread")
+                        print(valueColor + "CSV Thread")
                         thread = csvThread(
                             self.passes, self.currentRevolutions, self.revolutionsPerFood)
                         thread.start()
