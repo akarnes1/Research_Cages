@@ -1,7 +1,9 @@
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 import csv
 import json
 import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import sys
 import traceback
 import time
@@ -34,7 +36,7 @@ class main():
         self.emailAddress = "akarnes1@asu.edu"
 
         self.csvStart = time.time() - 601
-        self.servoStart = time.time()
+        self.resetTime = time.time()
         self.servoQueue = []
         self.foodQueue = []
 
@@ -150,7 +152,7 @@ class main():
             self.pwm[i].ChangeDutyCycle(self.FOOD[0])
             time.sleep(1.5)
             self.pwm[i].stop()
-        
+
         GPIO.cleanup()
 
 
@@ -160,13 +162,31 @@ class emailThread(Thread):
         self.daemon = True
         self.cage = cageNumber
         self.emailAddress = emailAddress
+        self.fromEmail = "researchcages@gmail.com"
 
     def run(self):
-        server = smtplib.SMTP('smtp.gmail.com')
+        server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        server.login("researchcages@gmail.com", "This is the password.")
-        msg = "Cage " + str(self.cage) + " has triggered the FOOD dispenser."
-        server.sendmail("researchcages@gmail.com", self.emailAddress, msg)
+        server.login(self.fromEmail, "This is the password.")
+
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = "Food dispensed for a cage"
+        msg['From'] = self.fromEmail
+        msgBody = "Cage " + str(self.cage) + \
+            " has triggered the food dispenser." + "\n" + \
+            "Attached is the log from within the last 10 minutes"
+
+        filename = "log.csv"
+        f = open(filename)
+        attachment = MIMEText(f.read())
+        attachment.add_header('Content-Disposition',
+                              'attachment', filename=filename)
+
+        content = MIMEText(msgBody, 'plain')
+        msg.attach(content)
+        msg.attach(attachment)
+
+        server.sendmail(self.fromEmail, self.emailAddress, msg.as_string())
         server.quit()
         print("Email sent")
 
@@ -211,6 +231,7 @@ class csvThread(Thread):
                 csvwrite.writerow([index + 1] + [self.currentRevolutions[index]] + [self.revolutionsPerFood[index]] +
                                   [time.asctime(time.localtime(time.time()))])
         print("CSV Done")
+
 
 if __name__ == "__main__":
     main()
